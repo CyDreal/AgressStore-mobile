@@ -18,26 +18,35 @@
                 android:id="@+id/lottie_login"
                 android:layout_width="300dp"
                 android:layout_height="300dp"
-                app:lottie_rawRes="@raw/login"
+                app:lottie_rawRes="@raw/welcome"
                 app:lottie_autoPlay="true"
                 app:lottie_loop="true"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Welcome To Agress Mobile"
-                android:textColor="@color/text_primary"
-                android:textSize="24sp"
+                android:text="Welcome!"
+                android:layout_marginTop="25dp"
+                android:textColor="@color/primary"
+                android:textSize="44sp"
                 android:textStyle="bold"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Sign in to continue"
-                android:textColor="@color/text_secondary"
-                android:textSize="16sp"
-                android:layout_marginTop="8dp"/>
+                android:text="Join to explore"
+                android:textColor="@color/secondary"
+                android:textSize="20sp"/>
         </LinearLayout>
     </RelativeLayout>
 
+    <com.airbnb.lottie.LottieAnimationView
+        android:layout_width="100dp"
+        android:layout_height="150dp"
+        android:layout_marginBottom="10dp"
+        android:layout_gravity="bottom|center"
+        app:lottie_rawRes="@raw/swipe_up"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        android:baselineAlignBottom="true"/>
     <!-- Bottom Sheet Container -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/bottomSheet"
@@ -45,34 +54,108 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bottom_sheet_background"
         app:behavior_hideable="false"
-        app:behavior_peekHeight="400dp"
+        app:behavior_peekHeight="60dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="24dp">
+            android:orientation="vertical">
 
+            <!-- Drag Handle -->
             <View
                 android:layout_width="40dp"
                 android:layout_height="4dp"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="24dp"
+                android:layout_marginTop="12dp"
                 android:background="@color/text_secondary"
-                android:alpha="0.5"/>
+                android:alpha="0.3"/>
 
+            <!-- Header Section with Gradient Background -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Let's Get Started"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Join our community and explore more"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginTop="8dp"/>
+            </LinearLayout>
+
+            <!-- Custom Tab Layout -->
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tabLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="24dp"
+                android:background="@drawable/tab_background"
+                app:tabBackground="@drawable/tab_selector"
+                app:tabTextColor="@color/text_secondary"
+                app:tabSelectedTextColor="@color/primary"
+                app:tabIndicatorHeight="0dp"
                 app:tabGravity="fill"
-                app:tabMode="fixed"/>
+                app:tabMode="fixed"
+                app:tabRippleColor="@null"/>
 
+            <!-- ViewPager for Login/Register -->
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/viewPager"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:layout_height="450dp"
+                android:layout_marginTop="16dp"/>
+
+            <!-- Additional Info Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Or continue with"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="14sp"/>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center">
+
+                    <ImageButton
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_marginHorizontal="8dp"
+                        android:background="@drawable/tab_background"
+                        android:src="@drawable/ic_home_black_24dp"
+                        android:padding="12dp"/>
+
+                    <ImageButton
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_marginHorizontal="8dp"
+                        android:background="@drawable/tab_background"
+                        android:src="@drawable/ic_home_black_24dp"
+                        android:padding="12dp"/>
+                </LinearLayout>
+            </LinearLayout>
 
         </LinearLayout>
 
