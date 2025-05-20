@@ -1,4 +1,4 @@
-package com.example.agress.ui.notifications;
+package com.example.agress.ui.checkout;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,22 +10,22 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.agress.databinding.FragmentNotificationsBinding;
+import com.example.agress.databinding.FragmentCheckoutBinding;
 
-public class NotificationsFragment extends Fragment {
+public class CheckoutFragment extends Fragment {
 
-    private FragmentNotificationsBinding binding;
+    private FragmentCheckoutBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        NotificationsViewModel notificationsViewModel =
-                new ViewModelProvider(this).get(NotificationsViewModel.class);
+        CheckoutViewModel checkoutViewModel =
+                new ViewModelProvider(this).get(CheckoutViewModel.class);
 
-        binding = FragmentNotificationsBinding.inflate(inflater, container, false);
+        binding = FragmentCheckoutBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        final TextView textView = binding.textNotifications;
-        notificationsViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+        final TextView textView = binding.textCheckout;
+        checkoutViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         return root;
     }
 

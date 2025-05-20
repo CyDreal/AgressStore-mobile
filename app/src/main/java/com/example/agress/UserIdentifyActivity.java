@@ -60,6 +60,6 @@ public class UserIdentifyActivity extends AppCompatActivity {
         });
     }
     public void switchToLogin() {
-        binding.viewPager.setCurrentItem(0); // 0 adalah index dari tab login
+        binding.viewPager.setCurrentItem(0, true); // 0 adalah index dari tab login || true enable smooth scroll
     }
 }

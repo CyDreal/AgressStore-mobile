@@ -45,6 +45,7 @@ dependencies {
     implementation(libs.navigation.ui)
     implementation(libs.activity)
     implementation(libs.annotation)
+    implementation(libs.legacy.support.v4)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -62,4 +63,7 @@ dependencies {
 
     // Image Slideshow
     // implementation("com.github.denzcoskun:ImageSlideshow:0.1.2")
+
+    // pull to refresh
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.0")
 }

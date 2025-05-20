@@ -32,7 +32,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Join to explore"
+                android:text="Join to explore with Agress"
                 android:textColor="@color/secondary"
                 android:textSize="20sp"/>
         </LinearLayout>
@@ -76,7 +76,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="24dp">
+                android:padding="24dp"
+                android:layout_marginTop="15dp">
 
                 <TextView
                     android:layout_width="match_parent"
