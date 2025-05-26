@@ -62,8 +62,10 @@ dependencies {
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
 
     // Image Slideshow
-    // implementation("com.github.denzcoskun:ImageSlideshow:0.1.2")
+    implementation("com.github.denzcoskun:ImageSlideshow:0.1.2")
 
     // pull to refresh
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.0")
 }

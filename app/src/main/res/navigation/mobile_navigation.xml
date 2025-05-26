@@ -15,7 +15,21 @@
         android:id="@+id/navigation_product"
         android:name="com.example.agress.ui.product.ProductFragment"
         android:label="@string/title_product"
-        tools:layout="@layout/fragment_product" />
+        tools:layout="@layout/fragment_product">
+        <action
+            android:id="@+id/action_to_product_detail"
+            app:destination="@id/navigation_product_detail" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_product_detail"
+        android:name="com.example.agress.ui.product.ProductDetailFragment"
+        android:label="@string/title_product_detail"
+        tools:layout="@layout/fragment_product_detail">
+        <argument
+            android:name="product_id"
+            app:argType="integer" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_checkout"

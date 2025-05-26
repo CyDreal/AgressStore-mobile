@@ -9,7 +9,11 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
-    private static final String BASE_URL = "https://agressapi.vannz.my.id/";
+    // api menggunakan wsl
+//    private static final String BASE_URL = "https://agressapi.vannz.my.id/";
+
+    // api menggunakna stb
+        private static final String BASE_URL = "https://mobilelumen.vannz.my.id/";
     private static Retrofit retrofit = null;
 
     public static ApiService getClient() {

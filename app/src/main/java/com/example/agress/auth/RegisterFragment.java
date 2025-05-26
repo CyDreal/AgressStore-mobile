@@ -16,6 +16,8 @@ import com.example.agress.api.response.UserResponse;
 import com.example.agress.api.response.request.RegisterRequest;
 import com.example.agress.databinding.FragmentRegisterBinding;
 
+import java.io.IOException;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -57,6 +59,21 @@ public class RegisterFragment extends Fragment {
                         }
                     } else {
                         Toast.makeText(requireContext(),apiResponse.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    try {
+                        String errorBody = response.errorBody() != null ?
+                                response.errorBody().string() :
+                                "Unknown error occurred";
+
+                        // Parse the error message for 422 validation errors
+                        if (response.code() == 422 && errorBody.contains("email")) {
+                            Toast.makeText(requireContext(), "Email sudah terdaftar", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(requireContext(), errorBody, Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (IOException e) {
+                        Toast.makeText(requireContext(), "Error parsing response", Toast.LENGTH_SHORT).show();
                     }
                 }
             }

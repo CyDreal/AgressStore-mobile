@@ -17,7 +17,6 @@ public class UserResponse {
     private String avatar;
 
     // Getters
-
     public int getStatus() {
         return status;
     }

@@ -19,6 +19,8 @@ import com.example.agress.databinding.FragmentLoginBinding;
 import com.example.agress.model.User;
 import com.example.agress.utils.SessionManager;
 
+import java.io.IOException;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -85,6 +87,19 @@ public class LoginFragment extends Fragment {
                         Intent intent = new Intent(requireContext(), MainActivity.class);
                         startActivity(intent);
                         requireActivity().finish();
+                    } else {
+                        // Handle unsuccessful login with message from API
+                        Toast.makeText(requireContext(), apiResponse.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    try {
+                        // Handle error response
+                        String errorBody = response.errorBody() != null ?
+                                response.errorBody().string() :
+                                "Unknown error occurred";
+                        Toast.makeText(requireContext(), errorBody, Toast.LENGTH_SHORT).show();
+                    } catch (IOException e) {
+                        Toast.makeText(requireContext(), "Error parsing response", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
