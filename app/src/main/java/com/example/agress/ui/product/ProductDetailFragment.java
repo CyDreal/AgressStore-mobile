@@ -38,6 +38,10 @@ public class ProductDetailFragment extends Fragment {
     private int productId;
     private ProductImageAdapter imageAdapter;
     private ProductThumbnailAdapter thumbnailAdapter;
+    private boolean isDestroyed = false; // Tambahkan flag ini
+    private Call<?> activeCall; // Menangani error yang terjadi karena race condition antara network
+                                // call dan lifecycle fragment. Saat user cepat kembali sebelum response selesai,
+                                // binding sudah null tapi callback masih mencoba mengakses view.
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -51,6 +55,7 @@ public class ProductDetailFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState) {
         binding = FragmentProductDetailBinding.inflate(inflater, container, false);
+        isDestroyed = false;
 
         setupImageSlider();
         setupBackButton();
@@ -104,11 +109,15 @@ public class ProductDetailFragment extends Fragment {
     }
 
     private void loadProductDetail() {
+        if (isDestroyed) return;
+
         apiService = ApiClient.getClient();
         apiService.getProductDetail(productId).enqueue(new Callback<ProductDetailResponse>() {
             @Override
             public void onResponse(@NonNull Call<ProductDetailResponse> call,
-                                 @NonNull Response<ProductDetailResponse> response) {
+                                   @NonNull Response<ProductDetailResponse> response) {
+                if (isDestroyed || binding == null) return;
+
                 if (response.isSuccessful() && response.body() != null) {
                     Product product = response.body().getProduct();
                     displayProductDetails(product);
@@ -117,6 +126,7 @@ public class ProductDetailFragment extends Fragment {
 
             @Override
             public void onFailure(@NonNull Call<ProductDetailResponse> call, @NonNull Throwable t) {
+                if (isDestroyed || binding == null) return;
                 // Handle error
             }
         });
@@ -161,6 +171,10 @@ public class ProductDetailFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        isDestroyed = true;
+        if (activeCall != null) {
+            activeCall.cancel();
+        }
         binding = null;
     }
 }

@@ -5,18 +5,17 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.denzcoskun.imageslider.ImageSlider;
 import com.denzcoskun.imageslider.constants.ScaleTypes;
-import com.denzcoskun.imageslider.interfaces.ItemClickListener;
 import com.denzcoskun.imageslider.models.SlideModel;
 import com.example.agress.R;
 import com.example.agress.adapter.CategoryAdapter;
@@ -49,11 +48,18 @@ public class DashboardFragment extends Fragment {
             swipeRefreshLayout.setRefreshing(false); // Stop the refreshing animation
         });
 
-
+        setupSearchButton();
         setupImageSlider();
         setupCategories();
 
         return binding.getRoot();
+    }
+
+    private void setupSearchButton() {
+        binding.searchContainer.setOnClickListener(v ->
+                Navigation.findNavController(v)
+                        .navigate(R.id.action_dashboard_to_search)
+        );
     }
 
     private void setupImageSlider() {
