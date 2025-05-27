@@ -1,5 +1,6 @@
 package com.example.agress;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -11,17 +12,22 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.agress.auth.AuthPagerAdapter;
 import com.example.agress.databinding.ActivityUserIdentifyBinding;
+import com.example.agress.utils.SessionManager;
 import com.google.android.material.tabs.TabLayout;
 
 public class UserIdentifyActivity extends AppCompatActivity {
 
     private ActivityUserIdentifyBinding binding;
+    private SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityUserIdentifyBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot()); // Ubah set ke binding getRoot
+
+        // Guest mode
+        sessionManager = new SessionManager(this);
 
         // Set up ViewPager menggunakan AuthPagerAdapter
         ViewPager2 viewPager = binding.viewPager;
@@ -52,6 +58,14 @@ public class UserIdentifyActivity extends AppCompatActivity {
 
             }
         });
+
+        // Binding Guest Mode
+        binding.guestModeButton.setOnClickListener(v -> {
+            sessionManager.createGuestSession();
+            startActivity(new Intent(this, MainActivity.class));
+            finish();
+        });
+
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {

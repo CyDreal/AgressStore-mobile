@@ -1,5 +1,6 @@
 package com.example.agress.api;
 
+import com.example.agress.api.response.BaseResponse;
 import com.example.agress.api.response.ProductDetailResponse;
 import com.example.agress.api.response.ProductResponse;
 import com.example.agress.api.response.UserResponse;
@@ -10,6 +11,8 @@ import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -25,6 +28,7 @@ public interface ApiService {
     Call<ProductResponse> getProducts();
     @GET("api/products/{id}")
     Call<ProductDetailResponse> getProductDetail(@Path("id") int productId);
+    @FormUrlEncoded
     @POST("api/products/view-count")
-    Call<ProductResponse> updateViewCount(@Body Map<String, Integer> productId);
+    Call<BaseResponse> updateViewCount(@Field("product_id") int productId);
 }

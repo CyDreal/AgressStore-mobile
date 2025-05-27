@@ -18,6 +18,7 @@ import com.example.agress.adapter.ProductImageAdapter;
 import com.example.agress.adapter.ProductThumbnailAdapter;
 import com.example.agress.api.ApiClient;
 import com.example.agress.api.ApiService;
+import com.example.agress.api.response.BaseResponse;
 import com.example.agress.api.response.ProductDetailResponse;
 import com.example.agress.databinding.FragmentProductDetailBinding;
 import com.example.agress.model.Product;
@@ -54,9 +55,29 @@ public class ProductDetailFragment extends Fragment {
         setupImageSlider();
         setupBackButton();
         loadProductDetail();
+        updateViewCount();
 
         return binding.getRoot();
     }
+
+    private void updateViewCount() {
+        apiService = ApiClient.getClient();
+        apiService.updateViewCount(productId).enqueue(new Callback<BaseResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<BaseResponse> call, @NonNull Response<BaseResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    // Reload product details to get updated view count
+                    loadProductDetail();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<BaseResponse> call, @NonNull Throwable t) {
+                // Handle error silently
+            }
+        });
+    }
+
     private void setupImageSlider() {
         imageAdapter = new ProductImageAdapter(requireContext());
         thumbnailAdapter = new ProductThumbnailAdapter(requireContext(), binding.viewPagerImages);
@@ -119,6 +140,8 @@ public class ProductDetailFragment extends Fragment {
         binding.tvStock.setText(String.valueOf(product.getStock()));
         binding.tvVisitCount.setText(String.valueOf(product.getViewCount()));
         binding.tvDescription.setText(product.getDescription());
+        // Update view count display
+        binding.tvVisitCount.setText(String.valueOf(product.getViewCount()));
 
         // Set status chip
         binding.chipStatus.setText(product.getStatus());

@@ -15,6 +15,7 @@ public class SessionManager {
     private static final String KEY_PHONE = "phone";
     private static final String KEY_POSTAL_CODE = "postal_code";
     private static final String KEY_AVATAR = "avatar";
+    private static final String KEY_IS_GUEST = "isGuest";
 
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
@@ -109,6 +110,16 @@ public class SessionManager {
         // Debug log
         System.out.println("Debug - IsLoggedIn: " + isLoggedIn);
         return isLoggedIn;
+    }
+
+    public void createGuestSession() {
+        editor.clear();
+        editor.putBoolean(KEY_IS_GUEST, true);
+        editor.apply(); // menggunakan apply() untuk penyimpanan asynchronous
+    }
+
+    public boolean isGuest() {
+        return pref.getBoolean(KEY_IS_GUEST, false);
     }
 
     public void logout() {

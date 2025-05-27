@@ -96,6 +96,14 @@
                     android:layout_marginTop="8dp"/>
             </LinearLayout>
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/guestModeButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Guest"
+                android:layout_margin="16dp"
+                android:backgroundTint="@color/primary"/>
+
             <!-- Custom Tab Layout -->
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tabLayout"
