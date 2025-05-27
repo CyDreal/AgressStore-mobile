@@ -3,8 +3,15 @@ package com.example.agress.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.example.agress.model.CartItem;
 import com.example.agress.model.User;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class SessionManager {
     private static final String PREF_NAME = "UserSession";
@@ -21,6 +28,8 @@ public class SessionManager {
     private static final String KEY_IS_GUEST = "isGuest";
     private static final String KEY_USER = "user";
     private final Gson gson = new Gson();
+    private static final String KEY_CART = "cart";
+    private static final String KEY_CART_COUNT = "cart_count";
 
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
@@ -170,5 +179,56 @@ public class SessionManager {
     public void logout() {
         editor.clear();
         editor.apply(); // menggunakan apply() untuk penyimpanan asynchronous
+    }
+
+    public void addToCart(CartItem item) {
+        String cartJson = pref.getString(KEY_CART, "{}");
+        Type type = new TypeToken<Map<Integer, CartItem>>(){}.getType();
+        Map<Integer, CartItem> cart = gson.fromJson(cartJson, type);
+
+        CartItem existingItem = cart.get(item.getProductId());
+        if (existingItem != null) {
+            int newQuantity = existingItem.getQuantity() + item.getQuantity();
+            if (newQuantity <= item.getStock()) {
+                existingItem.setQuantity(newQuantity);
+            }
+        } else {
+            cart.put(item.getProductId(), item);
+        }
+
+        editor.putString(KEY_CART, gson.toJson(cart));
+        editor.putInt(KEY_CART_COUNT, getCartCount() + 1);
+        editor.apply();
+    }
+
+    public List<CartItem> getCartItems() {
+        String cartJson = pref.getString(KEY_CART, "{}");
+        Type type = new TypeToken<Map<Integer, CartItem>>(){}.getType();
+        Map<Integer, CartItem> cart = gson.fromJson(cartJson, type);
+        return new ArrayList<>(cart.values());
+    }
+
+    public int getCartCount() {
+        return pref.getInt(KEY_CART_COUNT, 0);
+    }
+
+    public void clearCart() {
+        editor.remove(KEY_CART);
+        editor.remove(KEY_CART_COUNT);
+        editor.apply();
+    }
+
+
+    public void removeFromCart(int productId) {
+        String cartJson = pref.getString(KEY_CART, "{}");
+        Type type = new TypeToken<Map<Integer, CartItem>>(){}.getType();
+        Map<Integer, CartItem> cart = gson.fromJson(cartJson, type);
+
+        if (cart.containsKey(productId)) {
+            cart.remove(productId);
+            editor.putString(KEY_CART, gson.toJson(cart));
+            editor.putInt(KEY_CART_COUNT, Math.max(0, getCartCount() - 1));
+            editor.apply();
+        }
     }
 }
