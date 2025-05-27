@@ -95,18 +95,24 @@ public class ProductFragment extends Fragment {
     private void filterProducts(String query) {
         if (allProducts == null) return;
 
-        if (query.isEmpty()) {
-            products.setProducts(allProducts);
-            return;
+        List<Product> filteredList = allProducts;
+
+        // Filter by category if selected
+        if (categorySelect != null && !categorySelect.isEmpty()) {
+            filteredList = filteredList.stream()
+                    .filter(product ->
+                            product.getCategory().equalsIgnoreCase(categorySelect))
+                    .collect(Collectors.toList());
         }
 
-        List<Product> filteredList = allProducts.stream()
-                .filter(product ->
-                        product.getProductName().toLowerCase().contains(query.toLowerCase()) ||
-                                product.getDescription().toLowerCase().contains(query.toLowerCase()) ||
-                                product.getCategory().toLowerCase().contains(query.toLowerCase())
-                )
-                .collect(Collectors.toList());
+        // Filter by search query if exists
+        if (!query.isEmpty()) {
+            filteredList = filteredList.stream()
+                    .filter(product ->
+                            product.getProductName().toLowerCase().contains(query.toLowerCase()) ||
+                                    product.getDescription().toLowerCase().contains(query.toLowerCase()))
+                    .collect(Collectors.toList());
+        }
 
         products.setProducts(filteredList);
     }
@@ -148,6 +154,9 @@ public class ProductFragment extends Fragment {
                     if (!currentQuery.isEmpty()) {
                         filterProducts(currentQuery);
                     }
+
+                    // Apply initial filtering
+                    filterProducts(binding.searchView.getQuery().toString());
                 }
             }
 

@@ -92,8 +92,11 @@ public class DashboardFragment extends Fragment {
 
         adapter.setOnItemClickListener(position -> {
             Category category = categories.get(position);
-            // Handle category click
-            Log.d("Category", "Clicked: " + category.getName());
+            // Navigate to ProductFragment with category
+            Bundle bundle = new Bundle();
+            bundle.putString("category", category.getName());
+            Navigation.findNavController(requireView())
+                    .navigate(R.id.navigation_product, bundle);
         });
     }
 
