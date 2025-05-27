@@ -35,6 +35,9 @@ public class SearchFragment extends Fragment {
     private List<Product> allProducts;
     private SearchHistoryManager searchHistoryManager;
     private ArrayAdapter<String> historyAdapter;
+    private ApiService apiService;
+    private boolean isDestroyed = false;
+    private Call<?> activeCall; // Track active network call
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -136,15 +139,25 @@ public class SearchFragment extends Fragment {
     }
 
     private void loadProducts() {
+        if (isDestroyed) return;
+
+        // Cancel any existing call
+        if (activeCall != null) {
+            activeCall.cancel();
+        }
+
         ApiService apiService = ApiClient.getClient();
         apiService.getProducts().enqueue(new Callback<ProductResponse>() {
             @Override
             public void onResponse(@NonNull Call<ProductResponse> call, @NonNull Response<ProductResponse> response) {
+                // Check if fragment is still active
+                if (isDestroyed || binding == null) return;
+
                 if (response.isSuccessful() && response.body() != null) {
                     allProducts = response.body().getProducts();
-                    // Filter products jika ada query yang sedang aktif
-                    String currentQuery = binding.searchView.getQuery().toString();
-                    if (!currentQuery.isEmpty()) {
+                    // Only filter if searchView exists and fragment is active
+                    if (binding != null && binding.searchView != null) {
+                        String currentQuery = binding.searchView.getQuery().toString();
                         filterProducts(currentQuery);
                     }
                 }
@@ -152,7 +165,12 @@ public class SearchFragment extends Fragment {
 
             @Override
             public void onFailure(@NonNull Call<ProductResponse> call, @NonNull Throwable t) {
-                // Handle error - bisa menampilkan pesan error atau empty state
+                // Check if fragment is still active
+                if (isDestroyed || binding == null) return;
+
+                if (!call.isCanceled()) {
+                    // Handle error - show toast or error message
+                }
             }
         });
     }
@@ -179,10 +197,23 @@ public class SearchFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        isDestroyed = true;
+
+        // Cancel any pending network calls
+        if (activeCall != null) {
+            activeCall.cancel();
+        }
+
         // Show bottom navigation when leaving fragment
         if (requireActivity().findViewById(R.id.nav_view) != null) {
             requireActivity().findViewById(R.id.nav_view).setVisibility(View.VISIBLE);
         }
         binding = null;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        isDestroyed = true;
     }
 }

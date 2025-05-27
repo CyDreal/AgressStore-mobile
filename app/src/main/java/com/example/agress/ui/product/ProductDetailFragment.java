@@ -1,5 +1,6 @@
 package com.example.agress.ui.product;
 
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +8,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -153,19 +155,29 @@ public class ProductDetailFragment extends Fragment {
         // Update view count display
         binding.tvVisitCount.setText(String.valueOf(product.getViewCount()));
 
-        // Set status chip
-        binding.chipStatus.setText(product.getStatus());
-        if ("available".equals(product.getStatus())) {
-            binding.chipStatus.setChipBackgroundColorResource(R.color.success);
-        } else {
-            binding.chipStatus.setChipBackgroundColorResource(R.color.error);
-        }
+        // Handle product status
+        boolean isAvailable = "available".equals(product.getStatus());
 
-        // Handle add to cart button
-        binding.btnAddToCart.setEnabled(product.getStock() > 0);
-        binding.btnAddToCart.setOnClickListener(v -> {
+        // Update status chip
+        binding.chipStatus.setText(product.getStatus());
+        binding.chipStatus.setChipBackgroundColorResource(
+                isAvailable ? R.color.success : R.color.error
+        );
+
+        // Update add to cart button state
+        binding.btnAddToCart.setEnabled(isAvailable && product.getStock() > 0);
+        binding.btnAddToCart.setBackgroundTintList(ColorStateList.valueOf(
+                ContextCompat.getColor(requireContext(),
+                        isAvailable ? R.color.primary : R.color.disabled)
+        ));
+
+        // Show/hide sold out text
+        binding.tvSoldOut.setVisibility(isAvailable ? View.GONE : View.VISIBLE);
+
+        // Handle add to cart button click only if product is available
+        binding.btnAddToCart.setOnClickListener(isAvailable ? v -> {
             // Handle add to cart logic
-        });
+        } : null);
     }
 
     @Override

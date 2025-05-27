@@ -18,62 +18,46 @@ import com.example.agress.model.ProductImage;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHolder> {
-
+public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductViewHolder> {
     private final Context context;
     private List<Product> products = new ArrayList<>();
+    private OnProductClickListener listener;
 
     public ProductAdapter(Context context) {
         this.context = context;
     }
-    public interface onProductClickListener {
-        void onProductClick(Product product);
-    }
-    private onProductClickListener listener;
-    public void setProductsClickListener(onProductClickListener listener) {
-        this.listener = listener;
-    }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.item_product, parent, false);
-        return new ViewHolder(view);
+        return new ProductViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
         Product product = products.get(position);
 
-        // Set product name
-        holder.productName.setText(product.getProductName());
-
-        // Format and set price
-        holder.price.setText(String.format("Rp %,d", product.getPrice()));
-
-        // Set view count
-        holder.viewCount.setText(String.valueOf(product.getViewCount()));
-
-        // Load image with image_order = 0
+        // Load product image
         if (product.getImages() != null && !product.getImages().isEmpty()) {
-            // Find image with image_order = 0
-            ProductImage mainImage = product.getImages().stream()
-                    .filter(img -> img.getImageOrder() == 0)
-                    .findFirst()
-                    .orElse(product.getImages().get(0));
-
-            // Use image_url directly from API response
+            String imageUrl = product.getImages().get(0).getImageUrl();
             Glide.with(context)
-                    .load(mainImage.getImageUrl())
+                    .load(imageUrl)
                     .placeholder(R.drawable.default_img)
                     .error(R.drawable.error_img)
-                    .into(holder.productImage);
+                    .into(holder.ivProduct);
         }
 
-        // Handle sold out status
-        holder.soldOut.setVisibility(product.getStock() == 0 ? View.VISIBLE : View.GONE);
+        // Set product details
+        holder.tvProductName.setText(product.getProductName());
+        holder.tvPrice.setText(String.format("Rp %,d", product.getPrice()));
+        holder.tvViewCount.setText(String.valueOf(product.getViewCount()));
 
-        // Set click listener for the item
+        // Handle product availability
+        boolean isAvailable = "available".equals(product.getStatus());
+        holder.tvSoldOut.setVisibility(isAvailable ? View.GONE : View.VISIBLE);
+
+        // Handle click event
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onProductClick(product);
@@ -86,26 +70,33 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
         return products.size();
     }
 
-    // Method to update the filtered product list
-    public void setProducts(List<Product> newProducts) {
-        this.products.clear();
-        this.products.addAll(newProducts);
+    public void setProducts(List<Product> products) {
+        this.products = products;
         notifyDataSetChanged();
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView productImage;
-        TextView productName, price, viewCount, soldOut;
+    public void setProductsClickListener(OnProductClickListener listener) {
+        this.listener = listener;
+    }
 
-        ViewHolder(View itemView) {
+    static class ProductViewHolder extends RecyclerView.ViewHolder {
+        ImageView ivProduct;
+        TextView tvProductName;
+        TextView tvPrice;
+        TextView tvViewCount;
+        TextView tvSoldOut;
+
+        public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
-            // Initialize views
-            productImage = itemView.findViewById(R.id.ivProduct);
-            productName = itemView.findViewById(R.id.tvProductName);
-            price = itemView.findViewById(R.id.tvPrice);
-            viewCount = itemView.findViewById(R.id.tvViewCount);
-            soldOut = itemView.findViewById(R.id.tvSoldOut);
+            ivProduct = itemView.findViewById(R.id.ivProduct);
+            tvProductName = itemView.findViewById(R.id.tvProductName);
+            tvPrice = itemView.findViewById(R.id.tvPrice);
+            tvViewCount = itemView.findViewById(R.id.tvViewCount);
+            tvSoldOut = itemView.findViewById(R.id.tvSoldOut);
         }
     }
 
+    public interface OnProductClickListener {
+        void onProductClick(Product product);
+    }
 }
