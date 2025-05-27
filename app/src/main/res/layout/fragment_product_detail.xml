@@ -156,6 +156,27 @@
                 app:layout_constraintTop_toTopOf="@id/tvStock" />
 
             <TextView
+                android:id="@+id/tvPurchasedLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:text="Terjual"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                app:layout_constraintStart_toEndOf="@id/tvVisitCount"
+                app:layout_constraintTop_toTopOf="@id/tvVisitCountLabel" />
+
+            <TextView
+                android:id="@+id/tvPurchased"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:text="0"
+                app:layout_constraintStart_toStartOf="@id/tvPurchasedLabel"
+                app:layout_constraintTop_toTopOf="@id/tvVisitCount" />
+
+            <TextView
                 android:id="@+id/tvDescriptionLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

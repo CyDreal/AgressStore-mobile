@@ -87,6 +87,25 @@
                     android:text="0"
                     android:layout_marginStart="10dp"
                     android:textColor="@color/text_secondary"/>
+
+                <!-- Add purchased quantity -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginStart="16dp"
+                    android:textSize="12sp"
+                    android:text="Terjual"
+                    android:textColor="@color/text_secondary"/>
+                <TextView
+                    android:id="@+id/tvPurchased"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textSize="12sp"
+                    android:text="0"
+                    android:layout_marginStart="10dp"
+                    android:textColor="@color/text_secondary"/>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

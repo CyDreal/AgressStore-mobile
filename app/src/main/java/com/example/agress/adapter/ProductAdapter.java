@@ -18,7 +18,7 @@ import com.example.agress.model.ProductImage;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductViewHolder> {
+public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHolder> {
     private final Context context;
     private List<Product> products = new ArrayList<>();
     private OnProductClickListener listener;
@@ -29,13 +29,13 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     @NonNull
     @Override
-    public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.item_product, parent, false);
-        return new ProductViewHolder(view);
+        return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Product product = products.get(position);
 
         // Load product image
@@ -52,6 +52,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         holder.tvProductName.setText(product.getProductName());
         holder.tvPrice.setText(String.format("Rp %,d", product.getPrice()));
         holder.tvViewCount.setText(String.valueOf(product.getViewCount()));
+        // Add purchased quantity
+        holder.tvPurchased.setText(String.valueOf(product.getPurchaseQuantity()));
 
         // Handle product availability
         boolean isAvailable = "available".equals(product.getStatus());
@@ -79,20 +81,21 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         this.listener = listener;
     }
 
-    static class ProductViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView ivProduct;
         TextView tvProductName;
         TextView tvPrice;
-        TextView tvViewCount;
+        TextView tvViewCount, tvPurchased;
         TextView tvSoldOut;
 
-        public ProductViewHolder(@NonNull View itemView) {
+        public ViewHolder(@NonNull View itemView) {
             super(itemView);
             ivProduct = itemView.findViewById(R.id.ivProduct);
             tvProductName = itemView.findViewById(R.id.tvProductName);
             tvPrice = itemView.findViewById(R.id.tvPrice);
             tvViewCount = itemView.findViewById(R.id.tvViewCount);
             tvSoldOut = itemView.findViewById(R.id.tvSoldOut);
+            tvPurchased = itemView.findViewById(R.id.tvPurchased);
         }
     }
 

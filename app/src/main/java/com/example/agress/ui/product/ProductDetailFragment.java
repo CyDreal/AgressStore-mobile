@@ -154,6 +154,8 @@ public class ProductDetailFragment extends Fragment {
         binding.tvDescription.setText(product.getDescription());
         // Update view count display
         binding.tvVisitCount.setText(String.valueOf(product.getViewCount()));
+        // Add purchased quantity display
+        binding.tvPurchased.setText(String.valueOf(product.getPurchaseQuantity()));
 
         // Handle product status
         boolean isAvailable = "available".equals(product.getStatus());

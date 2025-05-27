@@ -21,7 +21,7 @@ public class Product {
     private int weight;
     @SerializedName("status")
     private String status;
-    @SerializedName("purchase_quantity")
+    @SerializedName("purchased_quantity") // Change from purchase_quantity to purchased_quantity
     private int purchaseQuantity;
     @SerializedName("view_count")
     private int viewCount;
