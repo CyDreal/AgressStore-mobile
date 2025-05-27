@@ -3,6 +3,9 @@ package com.example.agress.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.example.agress.model.User;
+import com.google.gson.Gson;
+
 public class SessionManager {
     private static final String PREF_NAME = "UserSession";
     private static final String KEY_IS_LOGGED_IN = "isLoggedIn";
@@ -16,6 +19,8 @@ public class SessionManager {
     private static final String KEY_POSTAL_CODE = "postal_code";
     private static final String KEY_AVATAR = "avatar";
     private static final String KEY_IS_GUEST = "isGuest";
+    private static final String KEY_USER = "user";
+    private final Gson gson = new Gson();
 
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
@@ -75,6 +80,46 @@ public class SessionManager {
         this.context = context;
         pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         editor = pref.edit();
+    }
+
+    public User getUser() {
+        String userJson = pref.getString(KEY_USER, null);
+        if (userJson != null) {
+            return gson.fromJson(userJson, User.class);
+        }
+
+        // If no JSON stored, create User object from individual fields
+        if (isLoggedIn()) {
+            User user = new User();
+            user.setUserId(getUserId());
+            user.setUsername(getUsername());
+            user.setEmail(getEmail());
+            user.setAddress(getAddress());
+            user.setCity(getCity());
+            user.setProvince(getProvince());
+            user.setPhone(getPhone());
+            user.setPostalCode(getPostalCode());
+            return user;
+        }
+
+        return null;
+    }
+
+    public void saveUser(User user) {
+        if (user != null) {
+            String userJson = gson.toJson(user);
+            editor.putString(KEY_USER, userJson);
+            editor.putString(KEY_USER_ID, user.getUserId());
+            editor.putString(KEY_USERNAME, user.getUsername());
+            editor.putString(KEY_EMAIL, user.getEmail());
+            editor.putString(KEY_ADDRESS, user.getAddress());
+            editor.putString(KEY_CITY, user.getCity());
+            editor.putString(KEY_PROVINCE, user.getProvince());
+            editor.putString(KEY_PHONE, user.getPhone());
+            editor.putString(KEY_POSTAL_CODE, user.getPostalCode());
+            editor.putBoolean(KEY_IS_LOGGED_IN, true);
+            editor.commit();
+        }
     }
 
     public void createLoginSession(String userId, String username, String email, String address, String city, String province, String phone, String postalCode) {

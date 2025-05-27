@@ -2,7 +2,7 @@
     <string name="app_name">agress</string>
     <string name="title_product">Product</string>
     <string name="title_dashboard">Dashboard</string>
-    <string name="title_checkout">Checkout</string>
+    <string name="title_checkout">Cart</string>
     <string name="title_profile">Profile</string>
     <string name="title_product_detail">Product Detail</string>
     <!-- Strings related to login -->

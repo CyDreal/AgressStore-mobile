@@ -37,6 +37,7 @@ public class ProfileFragment extends Fragment {
         } else {
             setupUserInfo();
             setupLogoutButton();
+            setupViews();
         }
 
         return binding.getRoot();
@@ -106,6 +107,16 @@ public class ProfileFragment extends Fragment {
                     .show();
         });
     }
+
+    private void setupViews() {
+        // ... existing setup code
+
+        binding.buttonEditProfile.setOnClickListener(v -> {
+            Navigation.findNavController(requireView())
+                    .navigate(R.id.editProfileFragment);
+        });
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();

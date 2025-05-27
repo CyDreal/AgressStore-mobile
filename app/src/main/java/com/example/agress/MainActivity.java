@@ -2,6 +2,8 @@ package com.example.agress;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
@@ -63,5 +65,17 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .setCancelable(false)
                 .show();
+    }
+
+    public void hideBottomNavigation() {
+        if (binding.navView != null) {
+            binding.navView.setVisibility(View.GONE);
+        }
+    }
+
+    public void showBottomNavigation() {
+        if (binding.navView != null) {
+            binding.navView.setVisibility(View.VISIBLE);
+        }
     }
 }
