@@ -43,7 +43,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
             String imageUrl = product.getImages().get(0).getImageUrl();
             Glide.with(context)
                     .load(imageUrl)
-                    .placeholder(R.drawable.default_img)
+                    .placeholder(R.drawable.default_image)
                     .error(R.drawable.error_img)
                     .into(holder.ivProduct);
         }

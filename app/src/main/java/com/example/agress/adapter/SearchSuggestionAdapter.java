@@ -57,7 +57,7 @@ public class SearchSuggestionAdapter extends RecyclerView.Adapter<SearchSuggesti
 
             Glide.with(context)
                 .load(mainImage.getImageUrl())
-                .placeholder(R.drawable.default_img)
+                .placeholder(R.drawable.default_image)
                 .error(R.drawable.error_img)
                 .into(holder.thumbnail);
         }
