@@ -117,23 +117,6 @@ public class DashboardFragment extends Fragment {
         loadProducts();
     }
 
-    private void setupViews() {
-        // Setup RecyclerView
-        if (tabProductAdapter == null) {
-            tabProductAdapter = new ProductAdapter(requireContext());
-            binding.tabProductRecyclerView.setLayoutManager(
-                    new GridLayoutManager(requireContext(), 2)
-            );
-            binding.tabProductRecyclerView.setAdapter(tabProductAdapter);
-        }
-
-        // Setup SwipeRefreshLayout
-        binding.swipeRefreshLayout.setOnRefreshListener(this::refreshContent);
-
-        // Setup TabLayout
-        setupTabLayout();
-    }
-
     private void setupTabLayout() {
         TabLayout tabLayout = binding.productTabLayout;
 

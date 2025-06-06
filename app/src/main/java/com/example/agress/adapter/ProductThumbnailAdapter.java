@@ -31,7 +31,7 @@ public class ProductThumbnailAdapter extends RecyclerView.Adapter<ProductThumbna
         ImageView imageView = new ImageView(context);
         int size = (int) (70 * context.getResources().getDisplayMetrics().density);
         imageView.setLayoutParams(new ViewGroup.MarginLayoutParams(size, size));
-        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
         ((ViewGroup.MarginLayoutParams) imageView.getLayoutParams()).setMargins(0,0,0,0);
         return new ThumbnailViewHolder(imageView);
     }

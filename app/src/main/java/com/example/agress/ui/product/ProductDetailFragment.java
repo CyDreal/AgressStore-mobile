@@ -65,6 +65,9 @@ public class ProductDetailFragment extends Fragment {
         binding = FragmentProductDetailBinding.inflate(inflater, container, false);
         sessionManager = new SessionManager(requireContext());
 
+        // Hide bottom navigation
+        requireActivity().findViewById(R.id.nav_view).setVisibility(View.GONE);
+
         isDestroyed = false;
 
         setupImageSlider();
@@ -274,8 +277,9 @@ public class ProductDetailFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         isDestroyed = true;
-        if (activeCall != null) {
-            activeCall.cancel();
+        // Kembalikan visibility bottom navigation saat fragment dihancurkan
+        if (getActivity() != null) {
+            getActivity().findViewById(R.id.nav_view).setVisibility(View.VISIBLE);
         }
         binding = null;
     }
