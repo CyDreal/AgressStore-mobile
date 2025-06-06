@@ -201,38 +201,41 @@ public class ProductDetailFragment extends Fragment {
             }
 
             if (product.getImages() != null && !product.getImages().isEmpty()) {
-                // Cek apakah produk sudah ada di cart
+                // Buat CartItem baru dengan quantity 1
+                CartItem newItem = new CartItem(
+                        product.getId(),
+                        product.getProductName(),
+                        product.getPrice(),
+                        1, // Selalu set 1 untuk penambahan baru
+                        product.getImages().get(0).getImageUrl(),
+                        product.getStock()
+                );
+
                 List<CartItem> currentCart = sessionManager.getCartItems();
                 boolean productExists = false;
 
-                for (CartItem item : currentCart) {
-                    if (item.getProductId() == product.getId()) {
-                        // Produk sudah ada, tambah quantity
-                        if (item.getQuantity() < item.getStock()) {
-                            item.setQuantity(item.getQuantity() + 1);
-                            sessionManager.addToCart(item);
+                for (CartItem existingItem : currentCart) {
+                    if (existingItem.getProductId() == product.getId()) {
+                        productExists = true;
+                        // Cek apakah masih dalam batas stock
+                        if (existingItem.getQuantity() < existingItem.getStock()) {
+                            // Update quantity menggunakan updateCartItemQuantity
+                            sessionManager.updateCartItemQuantity(
+                                    product.getId(),
+                                    existingItem.getQuantity() + 1
+                            );
                             showUpdateCartSuccess();
                         } else {
                             Snackbar.make(binding.getRoot(),
                                     "Maximum stock reached",
                                     Snackbar.LENGTH_SHORT).show();
                         }
-                        productExists = true;
                         break;
                     }
                 }
 
                 if (!productExists) {
-                    // Produk belum ada, tambah baru
-                    CartItem cartItem = new CartItem(
-                            product.getId(),
-                            product.getProductName(),
-                            product.getPrice(),
-                            1,
-                            product.getImages().get(0).getImageUrl(),
-                            product.getStock()
-                    );
-                    sessionManager.addToCart(cartItem);
+                    sessionManager.addToCart(newItem);
                     showAddToCartSuccess();
                 }
             }

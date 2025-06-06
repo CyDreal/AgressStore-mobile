@@ -82,7 +82,8 @@ public class CheckoutFragment extends Fragment implements CartAdapter.CartItemLi
     }
 
     private void updateTotalPrice() {
-        int total = sessionManager.getCartItems().stream()
+        List<CartItem> items = sessionManager.getCartItems();
+        int total = items.stream()
                 .mapToInt(item -> item.getPrice() * item.getQuantity())
                 .sum();
         binding.textTotalPrice.setText(String.format("Total: Rp %,d", total));
@@ -90,9 +91,14 @@ public class CheckoutFragment extends Fragment implements CartAdapter.CartItemLi
 
     @Override
     public void onQuantityChanged(CartItem item, int newQuantity) {
-        item.setQuantity(newQuantity);
-        sessionManager.addToCart(item);
+        // Update SessionManager
+        sessionManager.updateCartItemQuantity(item.getProductId(), newQuantity);
+
+        // Refresh total price
         updateTotalPrice();
+
+        // Optional: Refresh cart items to ensure consistency
+        loadCartItems();
     }
 
     @Override

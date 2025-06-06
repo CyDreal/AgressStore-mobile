@@ -186,18 +186,11 @@ public class SessionManager {
         Type type = new TypeToken<Map<Integer, CartItem>>(){}.getType();
         Map<Integer, CartItem> cart = gson.fromJson(cartJson, type);
 
-        CartItem existingItem = cart.get(item.getProductId());
-        if (existingItem != null) {
-            int newQuantity = existingItem.getQuantity() + item.getQuantity();
-            if (newQuantity <= item.getStock()) {
-                existingItem.setQuantity(newQuantity);
-            }
-        } else {
-            cart.put(item.getProductId(), item);
-        }
+        // Langsung masukkan item baru, tanpa menambahkan quantity
+        cart.put(item.getProductId(), item);
 
         editor.putString(KEY_CART, gson.toJson(cart));
-        editor.putInt(KEY_CART_COUNT, getCartCount() + 1);
+        editor.putInt(KEY_CART_COUNT, cart.size());
         editor.apply();
     }
 
@@ -212,12 +205,28 @@ public class SessionManager {
         return pref.getInt(KEY_CART_COUNT, 0);
     }
 
-    public void clearCart() {
-        editor.remove(KEY_CART);
-        editor.remove(KEY_CART_COUNT);
-        editor.apply();
-    }
+//    public void clearCart() {
+//        editor.remove(KEY_CART);
+//        editor.remove(KEY_CART_COUNT);
+//        editor.apply();
+//    }
 
+    public void updateCartItemQuantity(int productId, int newQuantity) {
+        String cartJson = pref.getString(KEY_CART, "{}");
+        Type type = new TypeToken<Map<Integer, CartItem>>(){}.getType();
+        Map<Integer, CartItem> cart = gson.fromJson(cartJson, type);
+
+        CartItem item = cart.get(productId);
+        if (item != null) {
+            // Validasi quantity
+            if (newQuantity > 0 && newQuantity <= item.getStock()) {
+                item.setQuantity(newQuantity);
+                cart.put(productId, item);
+                editor.putString(KEY_CART, gson.toJson(cart));
+                editor.apply();
+            }
+        }
+    }
 
     public void removeFromCart(int productId) {
         String cartJson = pref.getString(KEY_CART, "{}");

@@ -4,9 +4,11 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.agress.R;
 import com.example.agress.databinding.ItemCartBinding;
 import com.example.agress.model.CartItem;
 
@@ -62,26 +64,52 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
             binding.textProductName.setText(item.getProductName());
             binding.textPrice.setText(String.format("Rp %,d", item.getPrice()));
             binding.textQuantity.setText(String.valueOf(item.getQuantity()));
+            binding.textStock.setText(String.format("Stok: %d", item.getStock()));
 
             Glide.with(binding.getRoot())
                 .load(item.getImageUrl())
                 .into(binding.imageProduct);
 
-            // Setup quantity controls
+            // Update minus button appearance and behavior based on quantity
+            updateMinusButton(item);
+
+            // Setup quantity controls dengan update langsung
             binding.buttonMinus.setOnClickListener(v -> {
-                if (item.getQuantity() > 1) {
-                    listener.onQuantityChanged(item, item.getQuantity() - 1);
+                if (item.getQuantity() == 1) {
+                    // Remove item if quantity is 1
+                    listener.onRemoveItem(item);
+                } else {
+                    // Decrease quantity
+                    int newQuantity = item.getQuantity() - 1;
+                    item.setQuantity(newQuantity);
+                    binding.textQuantity.setText(String.valueOf(newQuantity));
+                    updateMinusButton(item);
+                    listener.onQuantityChanged(item, newQuantity);
                 }
             });
 
             binding.buttonPlus.setOnClickListener(v -> {
                 if (item.getQuantity() < item.getStock()) {
-                    listener.onQuantityChanged(item, item.getQuantity() + 1);
+                    int newQuantity = item.getQuantity() + 1;
+                    item.setQuantity(newQuantity);
+                    binding.textQuantity.setText(String.valueOf(newQuantity));
+                    listener.onQuantityChanged(item, newQuantity);
                 }
             });
+        }
 
-            binding.buttonRemove.setOnClickListener(v ->
-                listener.onRemoveItem(item));
+        private void updateMinusButton(CartItem item) {
+            if (item.getQuantity() == 1) {
+                binding.buttonMinus.setImageResource(R.drawable.ic_delete_24px);
+                binding.buttonMinus.setColorFilter(
+                        ContextCompat.getColor(binding.getRoot().getContext(), android.R.color.holo_red_light)
+                );
+            } else {
+                binding.buttonMinus.setImageResource(R.drawable.remove_24px);
+                binding.buttonMinus.setColorFilter(
+                        ContextCompat.getColor(binding.getRoot().getContext(), android.R.color.darker_gray)
+                );
+            }
         }
     }
 }
