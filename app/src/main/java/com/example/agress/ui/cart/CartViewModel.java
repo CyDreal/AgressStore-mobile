@@ -1,14 +1,14 @@
-package com.example.agress.ui.checkout;
+package com.example.agress.ui.cart;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class CheckoutViewModel extends ViewModel {
+public class CartViewModel extends ViewModel {
 
     private final MutableLiveData<String> mText;
 
-    public CheckoutViewModel() {
+    public CartViewModel() {
         mText = new MutableLiveData<>();
         mText.setValue("This is checkout fragment");
     }

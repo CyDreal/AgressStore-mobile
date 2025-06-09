@@ -248,7 +248,7 @@ public class ProductDetailFragment extends Fragment {
                         Snackbar.LENGTH_SHORT)
                 .setAction("View Cart", v -> {
                     Navigation.findNavController(v)
-                            .navigate(R.id.navigation_checkout);
+                            .navigate(R.id.navigation_cart);
                 })
                 .show();
     }
@@ -259,7 +259,7 @@ public class ProductDetailFragment extends Fragment {
                         Snackbar.LENGTH_SHORT)
                 .setAction("View Cart", v -> {
                     Navigation.findNavController(v)
-                            .navigate(R.id.navigation_checkout);
+                            .navigate(R.id.navigation_cart);
                 })
                 .show();
     }

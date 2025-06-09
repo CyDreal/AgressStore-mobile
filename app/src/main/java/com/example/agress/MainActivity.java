@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         // Setup bottom navigation
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.navigation_product, R.id.navigation_dashboard,
-                R.id.navigation_checkout, R.id.navigation_profile)
+                R.id.navigation_cart, R.id.navigation_profile)
                 .build();
 
         // Setup NavigationUI

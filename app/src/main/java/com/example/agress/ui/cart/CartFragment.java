@@ -1,4 +1,4 @@
-package com.example.agress.ui.checkout;
+package com.example.agress.ui.cart;
 
 import android.os.Bundle;
 import android.view.Gravity;
@@ -13,21 +13,21 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.agress.adapter.CartAdapter;
-import com.example.agress.databinding.FragmentCheckoutBinding;
+import com.example.agress.databinding.FragmentCartBinding;
 import com.example.agress.model.CartItem;
 import com.example.agress.utils.SessionManager;
 
 import java.util.List;
 
-public class CheckoutFragment extends Fragment implements CartAdapter.CartItemListener {
+public class CartFragment extends Fragment implements CartAdapter.CartItemListener {
 
-    private FragmentCheckoutBinding binding;
+    private FragmentCartBinding binding;
     private SessionManager sessionManager;
     private CartAdapter adapter;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        binding = FragmentCheckoutBinding.inflate(inflater, container, false);
+        binding = FragmentCartBinding.inflate(inflater, container, false);
         sessionManager = new SessionManager(requireContext());
 
         if (sessionManager.isGuest()) {
