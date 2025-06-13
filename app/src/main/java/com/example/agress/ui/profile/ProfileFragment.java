@@ -109,11 +109,15 @@ public class ProfileFragment extends Fragment {
     }
 
     private void setupViews() {
-        // ... existing setup code
 
         binding.buttonEditProfile.setOnClickListener(v -> {
             Navigation.findNavController(requireView())
                     .navigate(R.id.editProfileFragment);
+        });
+
+        binding.layoutAboutUs.setOnClickListener(v -> {
+            Navigation.findNavController(requireView())
+                    .navigate(R.id.action_profile_to_about_us);
         });
     }
 

@@ -240,9 +240,9 @@
                     android:layout_height="1dp"
                     android:background="@color/disabled"/>
 
-                <!-- Help Center -->
+                <!-- About Us Center -->
                 <LinearLayout
-                    android:id="@+id/layout_help"
+                    android:id="@+id/layout_about_us"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="16dp"
@@ -254,14 +254,14 @@
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@drawable/ic_support_agent"/>
+                        android:src="@drawable/ic_about"/>
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginStart="16dp"
-                        android:text="Help Center"
+                        android:text="About Us"
                         android:textSize="16sp"/>
 
                     <ImageView
