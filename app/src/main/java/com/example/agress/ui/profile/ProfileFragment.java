@@ -119,6 +119,11 @@ public class ProfileFragment extends Fragment {
             Navigation.findNavController(requireView())
                     .navigate(R.id.action_profile_to_about_us);
         });
+
+        binding.layoutAccountSettings.setOnClickListener(v -> {
+            Navigation.findNavController(requireView())
+                    .navigate(R.id.navigation_settings);
+        });
     }
 
     @Override

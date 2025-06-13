@@ -72,7 +72,19 @@
             app:destination="@id/aboutUsFragment"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"/>
+        <action
+            android:id="@+id/action_profile_to_settings"
+            app:destination="@id/navigation_settings"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"/>
     </fragment>
+
+    <!-- Settings Fragment -->
+    <fragment
+        android:id="@+id/navigation_settings"
+        android:name="com.example.agress.ui.profile.SettingFragment"
+        android:label="Settings"
+        tools:layout="@layout/fragment_setting"/>
 
     <!-- About Us Fragment -->
     <fragment
