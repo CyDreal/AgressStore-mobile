@@ -6,12 +6,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.example.agress.R;
 import com.example.agress.adapter.CartAdapter;
 import com.example.agress.databinding.FragmentCartBinding;
 import com.example.agress.model.CartItem;
@@ -37,34 +40,27 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
             loadCartItems();
         }
 
+        // Add click listener for checkout button
+        binding.btnCheckout.setOnClickListener(v -> {
+            if (!sessionManager.isGuest() && !sessionManager.getCartItems().isEmpty()) {
+                // Navigate to checkout
+                Navigation.findNavController(v).navigate(R.id.action_cart_to_checkout);
+            }
+        });
+
         return binding.getRoot();
     }
+
 
     private void showEmptyCart() {
         binding.recyclerView.setVisibility(View.GONE);
         binding.textTotalPrice.setVisibility(View.GONE);
-
-        // Add TextView for empty cart message if not exists in layout
-        TextView emptyText = new TextView(requireContext());
-        emptyText.setText("Your cart is empty");
-        emptyText.setTextSize(16);
-        emptyText.setGravity(Gravity.CENTER);
-
-        // Add TextView to layout
-        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-        );
-        params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
-        params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
-        params.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
-        params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
-
-        ((ConstraintLayout) binding.getRoot()).addView(emptyText, params);
+        binding.btnCheckout.setVisibility(View.GONE);
+        binding.emptyCartText.setVisibility(View.VISIBLE);
     }
 
     private void setupRecyclerView() {
-        adapter = new CartAdapter(this);
+        adapter = new CartAdapter(this, requireContext()); // Fixed constructor
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerView.setAdapter(adapter);
     }
@@ -76,6 +72,8 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
         } else {
             binding.recyclerView.setVisibility(View.VISIBLE);
             binding.textTotalPrice.setVisibility(View.VISIBLE);
+            binding.btnCheckout.setVisibility(View.VISIBLE);
+            binding.emptyCartText.setVisibility(View.GONE);
             adapter.setItems(cartItems);
             updateTotalPrice();
         }
@@ -91,19 +89,15 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
 
     @Override
     public void onQuantityChanged(CartItem item, int newQuantity) {
-        // Update SessionManager
-        sessionManager.updateCartItemQuantity(item.getProductId(), newQuantity);
+        // Optional: Refresh cart items to ensure consistency
+        loadCartItems();
 
         // Refresh total price
         updateTotalPrice();
-
-        // Optional: Refresh cart items to ensure consistency
-        loadCartItems();
     }
 
     @Override
     public void onRemoveItem(CartItem item) {
-        sessionManager.removeFromCart(item.getProductId());
         loadCartItems();
         updateTotalPrice();
     }
@@ -114,5 +108,32 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
         if (!sessionManager.isGuest()) {
             loadCartItems();
         }
+    }
+
+    @Override
+    public void showLoading() {
+        if (binding != null) {
+            binding.progressBar.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void hideLoading() {
+        if (binding != null) {
+            binding.progressBar.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void showError(String message) {
+        if (getContext() != null) {
+            Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 }

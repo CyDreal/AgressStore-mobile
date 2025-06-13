@@ -1,6 +1,8 @@
 package com.example.agress.api;
 
 import com.example.agress.api.response.BaseResponse;
+import com.example.agress.api.response.CartListResponse;
+import com.example.agress.api.response.CartResponse;
 import com.example.agress.api.response.ProductDetailResponse;
 import com.example.agress.api.response.ProductResponse;
 import com.example.agress.api.response.UserResponse;
@@ -12,12 +14,14 @@ import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface ApiService {
     @POST("api/login")
@@ -35,4 +39,17 @@ public interface ApiService {
     Call<BaseResponse> updateViewCount(@Field("product_id") int productId);
     @PUT("api/user/{id}")
     Call<UserResponse> updateProfile(@Path("id") String userId, @Body UpdateProfileRequest request);
+
+    // cart api
+    @FormUrlEncoded
+    @POST("api/carts")
+    Call<CartResponse> addToCart(
+            @Field("user_id") String userId,
+            @Field("product_id") int productId,
+            @Field("quantity") int quantity
+    );
+    @GET("api/carts")
+    Call<CartListResponse> getUserCarts(@Query("user_id") String userId);
+    @DELETE("api/carts/{cart_id}")
+    Call<BaseResponse> removeFromCart(@Path("cart_id") String cartId);
 }

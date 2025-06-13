@@ -52,7 +52,14 @@
         android:id="@+id/navigation_cart"
         android:name="com.example.agress.ui.cart.CartFragment"
         android:label="@string/title_cart"
-        tools:layout="@layout/fragment_cart" />
+        tools:layout="@layout/fragment_cart" >
+        <!-- Add this action -->
+        <action
+            android:id="@+id/action_cart_to_checkout"
+            app:destination="@id/navigation_checkout"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"/>
+    </fragment>
 
     <!-- Profile Fragment -->
     <fragment
@@ -94,5 +101,19 @@
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
+
+    <!-- Checkout Fragment -->
+    <fragment
+        android:id="@+id/navigation_checkout"
+        android:name="com.example.agress.ui.cart.CheckoutFragment"
+        android:label="Checkout"
+        tools:layout="@layout/fragment_checkout">
+        <!-- Optional: Add action to go back to cart -->
+        <action
+            android:id="@+id/action_checkout_to_cart"
+            app:destination="@id/navigation_cart"
+            app:popUpTo="@id/navigation_cart"
+            app:popUpToInclusive="true"/>
     </fragment>
 </navigation>

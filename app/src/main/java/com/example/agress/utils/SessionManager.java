@@ -201,43 +201,9 @@ public class SessionManager {
         return new ArrayList<>(cart.values());
     }
 
-    public int getCartCount() {
-        return pref.getInt(KEY_CART_COUNT, 0);
-    }
-
-//    public void clearCart() {
-//        editor.remove(KEY_CART);
-//        editor.remove(KEY_CART_COUNT);
-//        editor.apply();
-//    }
-
-    public void updateCartItemQuantity(int productId, int newQuantity) {
-        String cartJson = pref.getString(KEY_CART, "{}");
-        Type type = new TypeToken<Map<Integer, CartItem>>(){}.getType();
-        Map<Integer, CartItem> cart = gson.fromJson(cartJson, type);
-
-        CartItem item = cart.get(productId);
-        if (item != null) {
-            // Validasi quantity
-            if (newQuantity > 0 && newQuantity <= item.getStock()) {
-                item.setQuantity(newQuantity);
-                cart.put(productId, item);
-                editor.putString(KEY_CART, gson.toJson(cart));
-                editor.apply();
-            }
-        }
-    }
-
-    public void removeFromCart(int productId) {
-        String cartJson = pref.getString(KEY_CART, "{}");
-        Type type = new TypeToken<Map<Integer, CartItem>>(){}.getType();
-        Map<Integer, CartItem> cart = gson.fromJson(cartJson, type);
-
-        if (cart.containsKey(productId)) {
-            cart.remove(productId);
-            editor.putString(KEY_CART, gson.toJson(cart));
-            editor.putInt(KEY_CART_COUNT, Math.max(0, getCartCount() - 1));
-            editor.apply();
-        }
+    public void clearCart() {
+        editor.remove(KEY_CART);
+        editor.remove(KEY_CART_COUNT);
+        editor.apply();
     }
 }

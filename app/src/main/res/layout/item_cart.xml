@@ -23,7 +23,7 @@
                 android:id="@+id/image_product"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
-                android:scaleType="centerCrop" />
+                android:scaleType="fitCenter" />
 
             <TextView
                 android:id="@+id/text_stock"

@@ -1,6 +1,7 @@
 package com.example.agress.model;
 
 public class CartItem {
+    private int id;
     private int productId;
     private String productName;
     private int price;
@@ -18,6 +19,12 @@ public class CartItem {
     }
 
     // Getters and setters
+    public int getId() {
+        return id;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
     public int getProductId() { return productId; }
     public String getProductName() { return productName; }
     public int getPrice() { return price; }
