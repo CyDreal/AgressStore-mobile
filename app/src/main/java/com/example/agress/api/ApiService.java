@@ -41,6 +41,13 @@ public interface ApiService {
         @Path("id") String userId,
         @Part MultipartBody.Part avatar
     );
+    @POST("api/user/reset-password")
+    Call<BaseResponse> resetPassword(
+        @Query("user_id") String userId,
+        @Query("old_password") String oldPassword,
+        @Query("new_password") String newPassword,
+        @Query("confirm_password") String confirmPassword
+    );
 
     // product api
     @GET("api/products")
