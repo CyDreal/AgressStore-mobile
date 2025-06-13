@@ -24,7 +24,7 @@ public class SessionManager {
     private static final String KEY_PROVINCE = "province";
     private static final String KEY_PHONE = "phone";
     private static final String KEY_POSTAL_CODE = "postal_code";
-    private static final String KEY_AVATAR = "avatar";
+    private static final String KEY_AVATAR = "user_avatar";
     private static final String KEY_IS_GUEST = "isGuest";
     private static final String KEY_USER = "user";
     private final Gson gson = new Gson();
@@ -62,27 +62,6 @@ public class SessionManager {
     }
     public String getPostalCode() {
         return pref.getString(KEY_POSTAL_CODE, "");
-    }
-    public String getAvatarPath() {
-        return pref.getString(KEY_AVATAR, "");
-    }
-
-    public void saveAvatarPath(String avatar) {
-        if (avatar != null) {
-            System.out.println("Debug - Saving Avatar Path: " + avatar);
-            editor.putString(KEY_AVATAR, avatar);
-            editor.commit(); // Use commit() instead of apply() for immediate effect
-        }
-    }
-
-    public void updateProfile(String username, String address, String city, String province, String phone, String postalCode) {
-        editor.putString(KEY_USERNAME, username);
-        editor.putString(KEY_ADDRESS, address);
-        editor.putString(KEY_CITY, city);
-        editor.putString(KEY_PROVINCE, province);
-        editor.putString(KEY_PHONE, phone);
-        editor.putString(KEY_POSTAL_CODE, postalCode);
-        editor.commit(); // Use commit() instead of apply() for immediate effect | gunakan apply() untuk menyimpan data secara asinkron
     }
 
     public SessionManager(Context context) {
@@ -126,37 +105,10 @@ public class SessionManager {
             editor.putString(KEY_PROVINCE, user.getProvince());
             editor.putString(KEY_PHONE, user.getPhone());
             editor.putString(KEY_POSTAL_CODE, user.getPostalCode());
+            editor.putString(KEY_AVATAR, user.getAvatar());
             editor.putBoolean(KEY_IS_LOGGED_IN, true);
             editor.commit();
         }
-    }
-
-    public void createLoginSession(String userId, String username, String email, String address, String city, String province, String phone, String postalCode) {
-        // Validasi input
-        if (userId == null || userId.isEmpty()) {
-            System.out.println("Debug - UserId is null or empty");
-            return;
-        }
-
-        // Membersihkan session sebelumnya
-        editor.clear();
-
-        editor.putBoolean(KEY_IS_LOGGED_IN, true);
-        editor.putString(KEY_USER_ID, userId);
-        editor.putString(KEY_USERNAME, username);
-        editor.putString(KEY_EMAIL, email);
-        editor.putString(KEY_ADDRESS, address);
-        editor.putString(KEY_CITY, city);
-        editor.putString(KEY_PROVINCE, province);
-        editor.putString(KEY_PHONE, phone);
-        editor.putString(KEY_POSTAL_CODE, postalCode);
-
-        boolean success = editor.commit(); // Use commit() instead of apply() for immediate effect
-
-        // Verify data tersimpan
-        System.out.println("Debug - Session Created - Success: " + success);
-        System.out.println("Debug - Session Created - UserId: " + pref.getString(KEY_USER_ID, ""));
-        System.out.println("Debug - Session Created - IsLoggedIn: " + pref.getBoolean(KEY_IS_LOGGED_IN, false));
     }
 
     public boolean isLoggedIn() {
@@ -205,5 +157,16 @@ public class SessionManager {
         editor.remove(KEY_CART);
         editor.remove(KEY_CART_COUNT);
         editor.apply();
+    }
+
+    public void saveAvatar(String avatarUrl) {
+        if (avatarUrl != null && !avatarUrl.isEmpty()) {
+            editor.putString(KEY_AVATAR, avatarUrl);
+            editor.commit();
+        }
+    }
+
+    public String getAvatar() {
+        return pref.getString(KEY_AVATAR, "");
     }
 }

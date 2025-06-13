@@ -57,12 +57,19 @@ public class LoginFragment extends Fragment {
             @Override
             public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    User user = response.body().getUser();
-                    if (user != null) {
+                    UserResponse userResponse = response.body();
+                    if (userResponse.getStatus() == 1 && userResponse.getUser() != null) {
+                        User user = userResponse.getUser();
+                        // Save user data including avatar
                         sessionManager.saveUser(user);
+                        // Explicitly save avatar
+                        if (user.getAvatar() != null && !user.getAvatar().isEmpty()) {
+                            sessionManager.saveAvatar(user.getAvatar());
+                        }
                         loadUserCart(user.getUserId());
                     } else {
-                        Toast.makeText(requireContext(), "Invalid user data received", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(),
+                                "Invalid user data received", Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     try {

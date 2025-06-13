@@ -1,30 +1,51 @@
 package com.example.agress.ui.profile;
 
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
+import com.bumptech.glide.Glide;
 import com.example.agress.R;
 import com.example.agress.UserIdentifyActivity;
+import com.example.agress.api.ApiClient;
+import com.example.agress.api.response.UserResponse;
 import com.example.agress.databinding.FragmentProfileBinding;
+import com.example.agress.model.User;
 import com.example.agress.utils.SessionManager;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
+import java.io.File;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ProfileFragment extends Fragment {
     private FragmentProfileBinding binding;
     private SessionManager sessionManager;
     private View blurView;
+    private static final int PICK_IMAGE_REQUEST = 1;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -41,6 +62,149 @@ public class ProfileFragment extends Fragment {
         }
 
         return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Setup avatar click
+        binding.imageAvatar.setOnClickListener(v -> showUploadAvatarDialog());
+        loadAvatar();
+    }
+
+    private void loadAvatar() {
+        String avatarUrl = sessionManager.getAvatar();
+        if (avatarUrl != null && !avatarUrl.isEmpty()) {
+            Glide.with(this)
+                    .load(avatarUrl)
+                    .placeholder(R.drawable.default_image)
+                    .error(R.drawable.error_img)
+                    .circleCrop()
+                    .into(binding.imageAvatar);
+        } else {
+            // Fetch user data if avatar is not in session
+            ApiClient.getClient().getUser(sessionManager.getUserId())
+                    .enqueue(new Callback<UserResponse>() {
+                        @Override
+                        public void onResponse(Call<UserResponse> call,
+                                               Response<UserResponse> response) {
+                            if (response.isSuccessful() && response.body() != null
+                                    && response.body().getUser() != null) {
+                                User user = response.body().getUser();
+                                if (user.getAvatar() != null && !user.getAvatar().isEmpty()) {
+                                    sessionManager.saveAvatar(user.getAvatar());
+                                    loadAvatar(); // Reload avatar
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<UserResponse> call, Throwable t) {
+                            Toast.makeText(requireContext(),
+                                    "Failed to load avatar", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
+    }
+
+    private void showUploadAvatarDialog() {
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_upload_avatar, null);
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                .setView(dialogView)
+                .create();
+
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        dialogView.findViewById(R.id.btn_choose_photo).setOnClickListener(v -> {
+            dialog.dismiss();
+            openImagePicker();
+        });
+
+        dialogView.findViewById(R.id.btn_cancel).setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+    }
+
+    private void openImagePicker() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK
+                && data != null && data.getData() != null) {
+            uploadImage(data.getData());
+        }
+    }
+
+    private void uploadImage(Uri imageUri) {
+        ProgressDialog progressDialog = new ProgressDialog(requireContext());
+        progressDialog.setMessage("Uploading...");
+        progressDialog.show();
+
+        try {
+            String filePath = getRealPathFromUri(imageUri);
+            File file = new File(filePath);
+
+            RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), file);
+            MultipartBody.Part body = MultipartBody.Part.createFormData("avatar",
+                    file.getName(), requestFile);
+
+            ApiClient.getClient().updateAvatar(sessionManager.getUserId(), body)
+                    .enqueue(new Callback<UserResponse>() {
+                        @Override
+                        public void onResponse(Call<UserResponse> call,
+                                               Response<UserResponse> response) {
+                            progressDialog.dismiss();
+                            if (response.isSuccessful() && response.body() != null) {
+                                UserResponse userResponse = response.body();
+                                if (userResponse.getStatus() == 1 && userResponse.getUser() != null) {
+                                    User user = userResponse.getUser();
+                                    sessionManager.saveAvatar(user.getAvatar());
+                                    loadAvatar();
+                                    Toast.makeText(requireContext(),
+                                            "Avatar updated successfully", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(requireContext(),
+                                            "Failed to update avatar", Toast.LENGTH_SHORT).show();
+                                }
+                            } else {
+                                Toast.makeText(requireContext(),
+                                        "Error updating avatar", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<UserResponse> call, Throwable t) {
+                            progressDialog.dismiss();
+                            Toast.makeText(requireContext(),
+                                    "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        } catch (Exception e) {
+            progressDialog.dismiss();
+            Toast.makeText(requireContext(),
+                    "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private String getRealPathFromUri(Uri uri) {
+        String[] projection = {MediaStore.Images.Media.DATA};
+        Cursor cursor = requireActivity().getContentResolver().query(uri, projection,
+                null, null, null);
+        if (cursor == null) return null;
+
+        cursor.moveToFirst();
+        int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        String path = cursor.getString(columnIndex);
+        cursor.close();
+
+        return path;
     }
 
     private void showLoginRequiredDialog() {
