@@ -1,14 +1,18 @@
 package com.example.agress.api;
 
+import com.example.agress.api.response.AddressResponse;
 import com.example.agress.api.response.BaseResponse;
 import com.example.agress.api.response.CartListResponse;
 import com.example.agress.api.response.CartResponse;
 import com.example.agress.api.response.ProductDetailResponse;
 import com.example.agress.api.response.ProductResponse;
+import com.example.agress.api.response.RajaOngkirResponse;
 import com.example.agress.api.response.UserResponse;
 import com.example.agress.api.response.request.LoginRequest;
 import com.example.agress.api.response.request.RegisterRequest;
 import com.example.agress.api.response.request.UpdateProfileRequest;
+import com.example.agress.model.City;
+import com.example.agress.model.Province;
 
 import java.util.Map;
 
@@ -72,4 +76,29 @@ public interface ApiService {
     Call<CartListResponse> getUserCarts(@Query("user_id") String userId);
     @DELETE("api/carts/{cart_id}")
     Call<BaseResponse> removeFromCart(@Path("cart_id") String cartId);
+
+    // rajaongkir
+    @GET("api/provinces")
+    Call<RajaOngkirResponse<Province>> getProvinces();
+    @GET("api/cities")
+    Call<RajaOngkirResponse<City>> getCities(@Query("province") String provinceId);
+
+    // shipping address
+    @FormUrlEncoded
+    @POST("api/shipping/address")
+    Call<BaseResponse> saveAddress(
+            @Field("user_id") String userId,
+            @Field("label") String label,
+            @Field("recipient_name") String recipientName,
+            @Field("phone") String phone,
+            @Field("province_id") String provinceId,
+            @Field("province_name") String provinceName,
+            @Field("city_id") String cityId,
+            @Field("city_name") String cityName,
+            @Field("full_address") String address,
+            @Field("postal_code") String postalCode,
+            @Field("notes") String notes
+    );
+    @GET("api/shipping/address/{user_id}")
+    Call<AddressResponse> getAddresses(@Path("user_id") String userId);
 }
