@@ -288,6 +288,11 @@ public class ProfileFragment extends Fragment {
             Navigation.findNavController(requireView())
                     .navigate(R.id.navigation_settings);
         });
+
+        binding.layoutShippingAddress.setOnClickListener(v -> {
+            Navigation.findNavController(requireView())
+                    .navigate(R.id.action_navigation_profile_to_shippingAddress);
+        });
     }
 
     @Override

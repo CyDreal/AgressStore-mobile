@@ -77,7 +77,21 @@
             app:destination="@id/navigation_settings"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"/>
+        <action
+            android:id="@+id/action_navigation_profile_to_shippingAddress"
+            app:destination="@id/shippingAddressFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
     </fragment>
+
+    <!-- Shipping Address Fragment -->
+    <fragment
+        android:id="@+id/shippingAddressFragment"
+        android:name="com.example.agress.ui.profile.ShippingAddressFragment"
+        android:label="Shipping Address"
+        tools:layout="@layout/fragment_shipping_address"/>
 
     <!-- Settings Fragment -->
     <fragment
