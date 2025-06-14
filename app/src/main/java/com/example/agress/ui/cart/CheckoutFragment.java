@@ -1,30 +1,43 @@
 package com.example.agress.ui.cart;
 
+import android.app.AlertDialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.example.agress.R;
+import com.example.agress.adapter.AddressSelectionAdapter;
 import com.example.agress.adapter.CheckoutItemAdapter;
+import com.example.agress.api.ApiClient;
+import com.example.agress.api.response.AddressResponse;
 import com.example.agress.databinding.FragmentCheckoutBinding;
+import com.example.agress.model.Address;
 import com.example.agress.model.CartItem;
 import com.example.agress.utils.SessionManager;
 
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class CheckoutFragment extends Fragment {
-
-
     private FragmentCheckoutBinding binding;
     private SessionManager sessionManager;
     private CheckoutItemAdapter adapter;
     private static final int SHIPPING_COST = 10000; // Example shipping cost
+    private Address selectedAddress;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -56,9 +69,74 @@ public class CheckoutFragment extends Fragment {
         binding.recyclerViewItems.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerViewItems.setAdapter(adapter);
 
+        // Setup address selection
+        binding.cardAddress.setOnClickListener(v -> showAddressSelectionDialog());
+
         // Setup back button
         binding.btnBack.setOnClickListener(v ->
                 Navigation.findNavController(v).popBackStack());
+    }
+
+    private void showAddressSelectionDialog() {
+        View dialogView = getLayoutInflater().inflate(R.layout.layout_dialog_select_address, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setView(dialogView);
+
+        AlertDialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        RecyclerView recyclerView = dialogView.findViewById(R.id.recyclerAddresses);
+        ProgressBar progressBar = dialogView.findViewById(R.id.progressBar);
+
+        AddressSelectionAdapter adapter = new AddressSelectionAdapter();
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        recyclerView.setAdapter(adapter);
+
+        adapter.setListener(address -> {
+            selectedAddress = address;
+            updateAddressDisplay();
+            dialog.dismiss();
+        });
+
+        // Load addresses
+        progressBar.setVisibility(View.VISIBLE);
+        ApiClient.getClient().getAddresses(sessionManager.getUserId())
+                .enqueue(new Callback<AddressResponse>() {
+                    @Override
+                    public void onResponse(Call<AddressResponse> call, Response<AddressResponse> response) {
+                        progressBar.setVisibility(View.GONE);
+                        if (response.isSuccessful() && response.body() != null) {
+                            adapter.setAddresses(response.body().getAddresses());
+                        } else {
+                            Toast.makeText(requireContext(),
+                                    "Failed to load addresses",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<AddressResponse> call, Throwable t) {
+                        progressBar.setVisibility(View.GONE);
+                        Toast.makeText(requireContext(),
+                                "Error: " + t.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        dialog.show();
+    }
+
+    private void updateAddressDisplay() {
+        if (selectedAddress != null) {
+            String fullAddress = String.format("%s\n%s\n%s, %s, %s\n%s",
+                    selectedAddress.getLabel(),
+                    selectedAddress.getRecipientName(),
+                    selectedAddress.getFullAddress(),
+                    selectedAddress.getCityName(),
+                    selectedAddress.getProvinceName(),
+                    selectedAddress.getPostalCode());
+            binding.textAddress.setText(fullAddress);
+        }
     }
 
     private void loadCartItems() {
