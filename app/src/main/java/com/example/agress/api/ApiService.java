@@ -4,9 +4,11 @@ import com.example.agress.api.response.AddressResponse;
 import com.example.agress.api.response.BaseResponse;
 import com.example.agress.api.response.CartListResponse;
 import com.example.agress.api.response.CartResponse;
+import com.example.agress.api.response.CourierResponse;
 import com.example.agress.api.response.ProductDetailResponse;
 import com.example.agress.api.response.ProductResponse;
 import com.example.agress.api.response.RajaOngkirResponse;
+import com.example.agress.api.response.ShippingCostResponse;
 import com.example.agress.api.response.UserResponse;
 import com.example.agress.api.response.request.LoginRequest;
 import com.example.agress.api.response.request.RegisterRequest;
@@ -101,4 +103,15 @@ public interface ApiService {
     );
     @GET("api/shipping/address/{user_id}")
     Call<AddressResponse> getAddresses(@Path("user_id") String userId);
+    @GET("api/shipping/couriers")
+    Call<CourierResponse> getCouriers();
+    @POST("api/shipping/calculate")
+    Call<ShippingCostResponse> calculateShipping(
+        @Query("origin") String origin,
+        @Query("destination") String destination,
+        @Query("weight") int weight,
+        @Query("courier") String courier
+    );
+    @POST("api/orders")
+    Call<BaseResponse> createOrder(@Body Map<String, Object> orderData);
 }

@@ -78,15 +78,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:textColor="@color/text_secondary" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
                         android:text="Tap untuk memilih alamat"
-                        android:textColor="@color/primary"
-                        android:textSize="12sp" />
+                        android:textColor="@color/text_secondary" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -121,6 +114,80 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
+            <!-- Pilih Kurir -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardCourier"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="16dp"
+                android:foreground="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Kurir Pengiriman"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/textSelectedCourier"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Tap untuk memilih kurir"
+                        android:textColor="@color/text_secondary" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Layanan Pengiriman -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardService"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="16dp"
+                android:foreground="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Layanan Pengiriman"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/textSelectedService"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Tap untuk memilih layanan"
+                        android:textColor="@color/text_secondary" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
             <!-- Metode Pengiriman -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
@@ -145,22 +212,24 @@
                         android:textStyle="bold" />
 
                     <RadioGroup
-                        android:id="@+id/radioGroupShipping"
+                        android:id="@+id/paymentMethodGroup"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp">
 
                         <RadioButton
-                            android:id="@+id/radioCOD"
+                            android:id="@+id/radioCod"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="COD (Cash On Delivery)" />
+                            android:text="COD (Cash On Delivery)"
+                            android:tag="cod"/>
 
                         <RadioButton
-                            android:id="@+id/radioCourier"
+                            android:id="@+id/radioMidtrans"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Kurir Regular" />
+                            android:text="Midtrans"
+                            android:tag="midtrans"/>
                     </RadioGroup>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
