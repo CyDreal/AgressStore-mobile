@@ -293,6 +293,11 @@ public class ProfileFragment extends Fragment {
             Navigation.findNavController(requireView())
                     .navigate(R.id.action_navigation_profile_to_shippingAddress);
         });
+
+        binding.layoutOrderHistory.setOnClickListener(v -> {
+            Navigation.findNavController(requireView())
+                    .navigate(R.id.action_profile_to_order_history);
+        });
     }
 
     @Override
