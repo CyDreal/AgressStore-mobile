@@ -52,6 +52,7 @@ public class OrderItemAdapter extends RecyclerView.Adapter<OrderItemAdapter.Orde
             binding.textProductName.setText(item.getProduct().getProductName());
             binding.textProductPrice.setText(formatPrice(item.getPrice()));
             binding.textQuantity.setText("x" + item.getQuantity());
+//            binding.textSubtotal.setText(formatPrice(item.getSubtotal()));
         }
 
         private String formatPrice(String price) {

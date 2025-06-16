@@ -5,6 +5,7 @@ import com.example.agress.api.response.BaseResponse;
 import com.example.agress.api.response.CartListResponse;
 import com.example.agress.api.response.CartResponse;
 import com.example.agress.api.response.CourierResponse;
+import com.example.agress.api.response.OrderDetailResponse;
 import com.example.agress.api.response.OrderResponse;
 import com.example.agress.api.response.ProductDetailResponse;
 import com.example.agress.api.response.ProductResponse;
@@ -113,8 +114,10 @@ public interface ApiService {
         @Query("weight") int weight,
         @Query("courier") String courier
     );
+    @GET("api/orders/{id}")
+    Call<OrderDetailResponse> getOrderDetail(@Path("id") int orderId);
     @GET("api/user/{id}/orders")
-    Call<OrderResponse> getUserOrders(@Path("id") int userId);
+    Call<OrderResponse> getUserOrders(@Path("id") String userId);
     @POST("api/orders")
     Call<BaseResponse> createOrder(@Body Map<String, Object> orderData);
 }

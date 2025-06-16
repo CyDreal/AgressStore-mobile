@@ -94,7 +94,7 @@ public class OrderHistoryFragment extends Fragment {
             return;
         }
 
-        apiService.getUserOrders(Integer.parseInt(userId)).enqueue(new Callback<OrderResponse>() {
+        apiService.getUserOrders(userId).enqueue(new Callback<OrderResponse>() {
             @Override
             public void onResponse(@NonNull Call<OrderResponse> call, @NonNull Response<OrderResponse> response) {
                 binding.swipeRefresh.setRefreshing(false);

@@ -91,12 +91,26 @@
             app:exitAnim="@anim/nav_default_exit_anim"/>
     </fragment>
 
+    <!-- Order Details Fragment -->
+    <fragment
+        android:id="@+id/orderDetailsFragment"
+        android:name="com.example.agress.ui.profile.OrderDetailsFragment"
+        android:label="Order Details"
+        tools:layout="@layout/fragment_order_details">
+    </fragment>
+
     <!-- Order History Fragment -->
     <fragment
         android:id="@+id/orderHistoryFragment"
         android:name="com.example.agress.ui.profile.OrderHistoryFragment"
         android:label="Order History"
-        tools:layout="@layout/fragment_order_history"/>
+        tools:layout="@layout/fragment_order_history">
+        <action
+            android:id="@+id/action_order_history_to_details"
+            app:destination="@id/orderDetailsFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"/>
+    </fragment>
 
     <!-- Shipping Address Fragment -->
     <fragment

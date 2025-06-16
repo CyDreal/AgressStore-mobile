@@ -5,6 +5,8 @@
     <string name="title_cart">Cart</string>
     <string name="title_profile">Profile</string>
     <string name="title_product_detail">Product Detail</string>
+    <string name="order_number">Order #%d</string>
+    <string name="payment_method">Payment Method: %s</string>
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>

@@ -3,14 +3,12 @@ package com.example.agress.api.response;
 import com.example.agress.model.Order;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.List;
-
-public class OrderResponse {
+public class OrderDetailResponse {
     @SerializedName("status")
     private int status;
-    @SerializedName("orders")
-    private List<Order> orders;
+    @SerializedName("order")
+    private Order order;
 
     public int getStatus() { return status; }
-    public List<Order> getOrders() { return orders; }
+    public Order getOrder() { return order; }
 }

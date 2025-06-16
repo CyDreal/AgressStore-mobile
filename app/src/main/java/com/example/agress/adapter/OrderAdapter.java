@@ -1,16 +1,21 @@
 package com.example.agress.adapter;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.agress.R;
 import com.example.agress.databinding.ItemOrderHistoryBinding;
 import com.example.agress.model.Order;
+import com.example.agress.ui.profile.OrderHistoryFragment;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -62,19 +67,18 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         void bind(Order order) {
             binding.textOrderId.setText("Order #" + order.getId());
             binding.textOrderDate.setText(formatDate(order.getCreatedAt()));
-            binding.textStatus.setText(order.getPaymentStatus().toUpperCase());
+            binding.textStatus.setText(order.getPaymentStatus());
+            binding.textStatus.setBackgroundTintList(ColorStateList.valueOf(getStatusColor(order.getPaymentStatus())));
             binding.textTotal.setText(formatPrice(order.getTotalPrice()));
 
-            // Set status background color
-            int bgColor = getStatusColor(order.getPaymentStatus());
-            binding.textStatus.getBackground().setTint(bgColor);
-
-            // Set order items
+            // Set items to nested RecyclerView
             itemAdapter.setItems(order.getItems());
 
-            // Optional: Set click listener for details button
+            // Set click listener for details button here
             binding.buttonDetails.setOnClickListener(v -> {
-                // Handle details click
+                Bundle args = new Bundle();
+                args.putInt("order_id", order.getId());
+                Navigation.findNavController(v).navigate(R.id.orderDetailsFragment, args);
             });
         }
 
