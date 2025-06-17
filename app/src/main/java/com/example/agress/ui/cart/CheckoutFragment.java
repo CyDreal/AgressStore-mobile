@@ -2,8 +2,10 @@ package com.example.agress.ui.cart;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -11,6 +13,7 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,18 +29,22 @@ import com.example.agress.adapter.CourierAdapter;
 import com.example.agress.adapter.ServiceAdapter;
 import com.example.agress.api.ApiClient;
 import com.example.agress.api.response.AddressResponse;
-import com.example.agress.api.response.BaseResponse;
 import com.example.agress.api.response.CourierResponse;
+import com.example.agress.api.response.CreateOrderResponse;
+import com.example.agress.api.response.MidtransResponse;
+import com.example.agress.api.response.OrderDetailResponse;
 import com.example.agress.api.response.ProductDetailResponse;
 import com.example.agress.api.response.ShippingCostResponse;
 import com.example.agress.databinding.FragmentCheckoutBinding;
 import com.example.agress.model.Address;
 import com.example.agress.model.CartItem;
 import com.example.agress.model.Courier;
+import com.example.agress.model.Order;
 import com.example.agress.model.Product;
 import com.example.agress.model.ShippingService;
 import com.example.agress.utils.SessionManager;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -430,11 +437,7 @@ public class CheckoutFragment extends Fragment {
             RadioButton selectedPayment = binding.getRoot().findViewById(selectedId);
             String paymentMethod = selectedPayment.getTag().toString(); // "midtrans" or "cod"
 
-            if (selectedId == R.id.radioCod) {
-                createOrder();
-            } else {
-                Toast.makeText(requireContext(), "Maaf, pembayaran via Midtrans sedang dalam maintenance", Toast.LENGTH_LONG).show();
-            }
+            createOrder();
         });
     }
 
@@ -443,8 +446,19 @@ public class CheckoutFragment extends Fragment {
         progressDialog.setMessage("Memproses pesanan...");
         progressDialog.show();
 
+        // Get selected payment method
+        RadioGroup paymentGroup = binding.paymentMethodGroup;
+        String paymentMethod = ((RadioButton) binding.getRoot()
+                .findViewById(paymentGroup.getCheckedRadioButtonId())).getTag().toString();
+
         // Calculate total price
         List<CartItem> items = sessionManager.getCartItems();
+        if (items.isEmpty()) {
+            progressDialog.dismiss();
+            Toast.makeText(requireContext(), "Keranjang kosong", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         int subtotal = items.stream()
                 .mapToInt(item -> item.getPrice() * item.getQuantity())
                 .sum();
@@ -453,7 +467,7 @@ public class CheckoutFragment extends Fragment {
         // Prepare request body
         Map<String, Object> orderData = new HashMap<>();
         orderData.put("user_id", sessionManager.getUserId());
-        orderData.put("payment_method", "cod");
+        orderData.put("payment_method", paymentMethod);
         orderData.put("payment_status", "unpaid");
         orderData.put("shipping_address", selectedAddress.getFullAddress());
         orderData.put("shipping_city", selectedAddress.getCityName());
@@ -465,31 +479,174 @@ public class CheckoutFragment extends Fragment {
         orderData.put("total_price", totalPrice);
         orderData.put("etd_days", selectedService.getCost().getEtd());
         orderData.put("status", "pending");
+        orderData.put("items", items); // Add cart items to request
 
-        // Make API call
-        ApiClient.getClient().createOrder(orderData)
-                .enqueue(new Callback<BaseResponse>() {
-                    @Override
-                    public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
+        ApiClient.getClient().createOrder(orderData).enqueue(new Callback<CreateOrderResponse>() {
+            @Override
+            public void onResponse(Call<CreateOrderResponse> call, Response<CreateOrderResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    CreateOrderResponse orderResponse = response.body();
+                    if (orderResponse.getStatus() == 1 && orderResponse.getOrder() != null) {
+                        int orderId = orderResponse.getOrder().getId();
+                        // Create Midtrans payment first
+                        createMidtransPayment(orderId, progressDialog);
+                    } else {
                         progressDialog.dismiss();
-                        if (response.isSuccessful() && response.body() != null) {
-                            // Clear local cart in SessionManager only
-                            sessionManager.clearCart();
+                        showError(orderResponse.getMessage());
+                    }
+                } else {
+                    progressDialog.dismiss();
+                    try {
+                        String errorBody = response.errorBody() != null ?
+                                response.errorBody().string() : "Unknown error";
+                        showError("Gagal membuat pesanan: " + errorBody);
+                    } catch (IOException e) {
+                        showError("Gagal membuat pesanan");
+                    }
+                }
+            }
 
-                            Toast.makeText(requireContext(), "Pesanan berhasil dibuat", Toast.LENGTH_SHORT).show();
-                            Navigation.findNavController(requireView()).popBackStack();
+            @Override
+            public void onFailure(Call<CreateOrderResponse> call, Throwable t) {
+                progressDialog.dismiss();
+                showError("Network error: " + t.getMessage());
+            }
+        });
+    }
+
+    private void createMidtransPayment(int orderId, ProgressDialog progressDialog) {
+        Map<String, String> paymentData = new HashMap<>();
+        paymentData.put("order_id", String.valueOf(orderId));
+        paymentData.put("user_id", sessionManager.getUserId());
+
+        Log.d("Payment", "Creating Midtrans payment for order: " + orderId);
+
+        ApiClient.getClient().createMidtransPayment(paymentData)
+                .enqueue(new Callback<MidtransResponse>() {
+                    @Override
+                    public void onResponse(Call<MidtransResponse> call, Response<MidtransResponse> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            MidtransResponse midtransResponse = response.body();
+                            if (midtransResponse.getStatus() == 1 && midtransResponse.getData() != null) {
+                                // Now get order details after Midtrans payment is created
+                                getOrderDetails(orderId, progressDialog);
+                            } else {
+                                progressDialog.dismiss();
+                                showError("Gagal membuat pembayaran Midtrans");
+                            }
                         } else {
-                            Toast.makeText(requireContext(), "Gagal membuat pesanan", Toast.LENGTH_SHORT).show();
+                            progressDialog.dismiss();
+                            showError("Gagal membuat pembayaran");
                         }
                     }
 
                     @Override
-                    public void onFailure(Call<BaseResponse> call, Throwable t) {
+                    public void onFailure(Call<MidtransResponse> call, Throwable t) {
                         progressDialog.dismiss();
-                        Toast.makeText(requireContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        showError("Error: " + t.getMessage());
                     }
                 });
     }
+
+    private void getOrderDetails(int orderId, ProgressDialog progressDialog) {
+        Log.d("OrderDetails", "Fetching order details for ID: " + orderId);
+
+        ApiClient.getClient().getOrderDetail(orderId).enqueue(new Callback<OrderDetailResponse>() {
+            @Override
+            public void onResponse(Call<OrderDetailResponse> call, Response<OrderDetailResponse> response) {
+                progressDialog.dismiss();
+
+                if (response.isSuccessful() && response.body() != null) {
+                    OrderDetailResponse detailResponse = response.body();
+                    if (detailResponse.getStatus() == 1 && detailResponse.getOrder() != null) {
+                        Order order = detailResponse.getOrder();
+                        String paymentUrl = order.getPaymentUrl();
+                        String paymentToken = order.getPaymentToken();
+
+                        Log.d("OrderDetails", "Payment URL: " + paymentUrl);
+                        Log.d("OrderDetails", "Payment Token: " + paymentToken);
+
+                        if (paymentUrl != null && !paymentUrl.isEmpty()) {
+                            // Clear cart after successful order
+                            sessionManager.clearCart();
+
+                            // Navigate to payment webview
+                            Bundle args = new Bundle();
+                            args.putString("payment_url", paymentUrl);
+                            args.putString("transaction_id", paymentToken);
+                            Navigation.findNavController(requireView())
+                                    .navigate(R.id.paymentWebViewFragment, args);
+                        } else {
+                            showError("Payment URL tidak ditemukan");
+                        }
+                    } else {
+                        showError("Invalid order data");
+                    }
+                } else {
+                    try {
+                        String errorBody = response.errorBody() != null ?
+                                response.errorBody().string() : "Unknown error";
+                        showError("Gagal mendapatkan detail order: " + errorBody);
+                    } catch (IOException e) {
+                        showError("Gagal mendapatkan detail order");
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<OrderDetailResponse> call, Throwable t) {
+                progressDialog.dismiss();
+                showError("Network error: " + t.getMessage());
+            }
+        });
+    }
+
+    private void showError(String message) {
+        if (isAdded()) {
+            Log.e("OrderDetails", message);
+            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+//    private void initiatePayment(ProgressDialog progressDialog, int orderId) {
+//        // Create payment request body
+//        Map<String, String> paymentData = new HashMap<>();
+//        paymentData.put("order_id", String.valueOf(orderId)); // You'll need to get the order_id from the previous response
+//        paymentData.put("user_id", sessionManager.getUserId());
+//
+//        // Make API call to create Midtrans payment
+//        ApiClient.getClient().createMidtransPayment(paymentData)
+//                .enqueue(new Callback<MidtransResponse>() {
+//                    @Override
+//                    public void onResponse(Call<MidtransResponse> call, Response<MidtransResponse> response) {
+//                        progressDialog.dismiss();
+//                        if (response.isSuccessful() && response.body() != null) {
+//                            MidtransResponse paymentResponse = response.body();
+//                            if (paymentResponse.getStatus() == 1) {
+//                                // Clear cart
+//                                sessionManager.clearCart();
+//
+//                                // Navigate to PaymentWebViewFragment
+//                                Bundle args = new Bundle();
+//                                args.putString("payment_url", paymentResponse.getData().getPaymentUrl());
+//                                args.putString("transaction_id", paymentResponse.getData().getToken());
+//                                Navigation.findNavController(requireView())
+//                                        .navigate(R.id.paymentWebViewFragment, args);
+//                            } else {
+//                                Toast.makeText(requireContext(), "Gagal memproses pembayaran", Toast.LENGTH_SHORT).show();
+//                            }
+//                        } else {
+//                            Toast.makeText(requireContext(), "Gagal memproses pembayaran", Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<MidtransResponse> call, Throwable t) {
+//                        progressDialog.dismiss();
+//                        Toast.makeText(requireContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+//    }
 
     @Override
     public void onDestroyView() {

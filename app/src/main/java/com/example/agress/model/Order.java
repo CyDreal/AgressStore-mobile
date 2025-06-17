@@ -13,6 +13,10 @@ public class Order {
     private String paymentMethod;
     @SerializedName("payment_status")
     private String paymentStatus;
+    @SerializedName("payment_token")
+    private String paymentToken;
+    @SerializedName("payment_url")
+    private String paymentUrl;
     @SerializedName("shipping_address")
     private String shippingAddress;
     @SerializedName("shipping_city")
@@ -34,6 +38,8 @@ public class Order {
     public int getId() { return id; }
     public String getPaymentMethod() { return paymentMethod; }
     public String getPaymentStatus() { return paymentStatus; }
+    public String getPaymentToken() { return paymentToken; }
+    public String getPaymentUrl() { return paymentUrl; }
     public String getShippingAddress() { return shippingAddress; }
     public String getShippingCity() { return shippingCity; }
     public String getShippingProvince() { return shippingProvince; }

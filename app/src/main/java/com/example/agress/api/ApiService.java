@@ -5,6 +5,8 @@ import com.example.agress.api.response.BaseResponse;
 import com.example.agress.api.response.CartListResponse;
 import com.example.agress.api.response.CartResponse;
 import com.example.agress.api.response.CourierResponse;
+import com.example.agress.api.response.CreateOrderResponse;
+import com.example.agress.api.response.MidtransResponse;
 import com.example.agress.api.response.OrderDetailResponse;
 import com.example.agress.api.response.OrderResponse;
 import com.example.agress.api.response.ProductDetailResponse;
@@ -87,7 +89,7 @@ public interface ApiService {
     @GET("api/cities")
     Call<RajaOngkirResponse<City>> getCities(@Query("province") String provinceId);
 
-    // shipping address
+    // shipping address api
     @FormUrlEncoded
     @POST("api/shipping/address")
     Call<BaseResponse> saveAddress(
@@ -114,10 +116,16 @@ public interface ApiService {
         @Query("weight") int weight,
         @Query("courier") String courier
     );
+
+    // orders api
     @GET("api/orders/{id}")
     Call<OrderDetailResponse> getOrderDetail(@Path("id") int orderId);
     @GET("api/user/{id}/orders")
     Call<OrderResponse> getUserOrders(@Path("id") String userId);
     @POST("api/orders")
-    Call<BaseResponse> createOrder(@Body Map<String, Object> orderData);
+    Call<CreateOrderResponse> createOrder(@Body Map<String, Object> orderData);
+
+    // payment api
+    @POST("api/payments/create")
+    Call<MidtransResponse> createMidtransPayment(@Body Map<String, String> paymentData);
 }
