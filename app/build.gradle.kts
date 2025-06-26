@@ -70,4 +70,7 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.0")
 
     implementation("com.google.code.gson:gson:2.10.1")
+
+    // circle image view
+    implementation("de.hdodenhof:circleimageview:3.1.0")
 }

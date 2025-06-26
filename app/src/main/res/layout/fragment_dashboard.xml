@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
+    android:background="@color/white"
     tools:context=".ui.dashboard.DashboardFragment">
 
     <LinearLayout
@@ -15,13 +16,66 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:orientation="vertical">
 
-        <!--  Header section  -->
+        <!--  Header section with welcome and profile  -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:gravity="center_vertical">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvWelcome"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Welcome back,"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+
+                <TextView
+                    android:id="@+id/tvUsername"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/primary"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/ivProfile"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/default_image"
+                app:shapeAppearanceOverlay="@style/CircleImageView"
+                app:strokeColor="@color/primary"
+                app:strokeWidth="1dp"
+                android:padding="2dp"/>
+        </LinearLayout>
+
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/stroke_color" />
+
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:paddingHorizontal="16dp"
-            android:paddingVertical="8dp"
-            tools:context=".ui.product.ProductFragment">
+            android:paddingVertical="8dp">
+
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/searchContainer"
@@ -29,9 +83,9 @@
                 android:layout_height="match_parent"
                 android:layout_marginEnd="12dp"
                 app:cardCornerRadius="8dp"
-                app:cardElevation="0dp"
-                app:strokeColor="@color/primary"
-                app:strokeWidth="1.5dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/secondary"
+                app:strokeWidth="1dp"
                 android:foreground="?attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
@@ -43,25 +97,27 @@
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:paddingHorizontal="8dp">
+                    android:paddingHorizontal="12dp">
+
 
                     <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:src="@android:drawable/ic_menu_search"
-                        app:tint="@color/text_secondary"/>
+                        app:tint="@color/primary" />
+
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:text="Search..."
+                        android:text="@string/search_products"
                         android:textColor="@color/text_secondary"
-                        android:textSize="16sp"/>
-
+                        android:textSize="14sp" />
                 </LinearLayout>
-
             </com.google.android.material.card.MaterialCardView>
+
+
             <ImageButton
                 android:id="@+id/messageButton"
                 android:layout_width="40dp"
@@ -73,7 +129,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/cartButton"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/black" />
+                app:tint="@color/primary" />
+
 
             <ImageButton
                 android:id="@+id/cartButton"
@@ -85,8 +142,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/black" />
-
+                app:tint="@color/primary" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout

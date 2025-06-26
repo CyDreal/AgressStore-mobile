@@ -54,7 +54,7 @@
                 android:background="@drawable/bg_label"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="4dp"
-                android:textColor="@color/white"
+
                 android:textSize="12sp"
                 tools:text="Completed"
                 tools:background="@color/success"/>

@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.bumptech.glide.Glide;
 import com.denzcoskun.imageslider.ImageSlider;
 import com.denzcoskun.imageslider.constants.ScaleTypes;
 import com.denzcoskun.imageslider.models.SlideModel;
@@ -27,6 +29,7 @@ import com.example.agress.api.response.ProductResponse;
 import com.example.agress.databinding.FragmentDashboardBinding;
 import com.example.agress.model.Category;
 import com.example.agress.model.Product;
+import com.example.agress.utils.SessionManager;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 
@@ -40,6 +43,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
+import com.google.android.material.imageview.ShapeableImageView;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -53,7 +57,15 @@ public class DashboardFragment extends Fragment {
     private List<Product> allProducts = new ArrayList<>();
     private TabLayout.OnTabSelectedListener tabSelectedListener;
     private boolean isTabLayoutInitialized = false;
+    private SessionManager sessionManager;
+    private TextView tvUsername;
+    private ShapeableImageView ivProfile;
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        sessionManager = new SessionManager(requireContext());
+    }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -61,12 +73,20 @@ public class DashboardFragment extends Fragment {
                 new ViewModelProvider(this).get(DashboardViewModel.class);
 
         binding = FragmentDashboardBinding.inflate(inflater, container, false);
+        View root = binding.getRoot();
+
+        // Initialize views
+        tvUsername = root.findViewById(R.id.tvUsername);
+        ivProfile = root.findViewById(R.id.ivProfile);
+
+        // Setup user profile
+        setupUserProfile();
 
         // Setup base components
         setupSearchButton();
         setupImageSlider();
         setupCategories();
-        setupRecyclerView(); // Separate RecyclerView setup
+        setupRecyclerView();
 
         // Setup SwipeRefreshLayout
         binding.swipeRefreshLayout.setOnRefreshListener(() -> {
@@ -74,9 +94,34 @@ public class DashboardFragment extends Fragment {
             binding.swipeRefreshLayout.setRefreshing(false);
         });
 
-        return binding.getRoot();
+        return root;
     }
 
+    private void setupUserProfile() {
+        // Set username
+        String username = sessionManager.getUsername();
+        if (username != null && !username.isEmpty()) {
+            tvUsername.setText(username);
+        } else {
+            tvUsername.setText(getString(R.string.guest_user));
+        }
+
+        // Load profile image if available
+        String avatarUrl = sessionManager.getUser().getAvatar();
+        if (avatarUrl != null && !avatarUrl.isEmpty()) {
+            Glide.with(requireContext())
+                    .load(avatarUrl)
+                    .placeholder(R.drawable.default_image)
+                    .error(R.drawable.error_img)
+                    .into(ivProfile);
+        }
+
+        // Set click listener for profile image
+        ivProfile.setOnClickListener(v -> {
+            // Navigate to profile fragment
+            Navigation.findNavController(v).navigate(R.id.navigation_profile);
+        });
+    }
     private void setupRecyclerView() {
         tabProductAdapter = new ProductAdapter(requireContext());
         binding.tabProductRecyclerView.setLayoutManager(
