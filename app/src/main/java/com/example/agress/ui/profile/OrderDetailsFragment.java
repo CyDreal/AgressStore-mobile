@@ -13,6 +13,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import com.example.agress.R;
@@ -126,6 +130,22 @@ public class OrderDetailsFragment extends Fragment {
         binding.textPaymentMethod.setText(getString(R.string.payment_method,
                 order.getPaymentMethod().toUpperCase()));
 
+        // Set transaction ID
+        if (order.getPaymentToken() != null && !order.getPaymentToken().isEmpty()) {
+            binding.textTransactionId.setVisibility(View.VISIBLE);
+            binding.textTransactionId.setText(getString(R.string.transaction_id, order.getPaymentToken()));
+        } else {
+            binding.textTransactionId.setVisibility(View.GONE);
+        }
+
+        // Set up WebView for payment URL if available
+        if (order.getPaymentUrl() != null && !order.getPaymentUrl().isEmpty()) {
+            binding.webViewDetails.setVisibility(View.VISIBLE);
+            setupWebView(order.getPaymentUrl());
+        } else {
+            binding.webViewDetails.setVisibility(View.GONE);
+        }
+
         // Set shipping address
         String fullAddress = String.format("%s\n%s, %s\n%s",
                 order.getShippingAddress(),
@@ -141,6 +161,35 @@ public class OrderDetailsFragment extends Fragment {
         binding.textSubtotal.setText(formatPrice(calculateSubtotal(order.getItems())));
         binding.textShippingCost.setText(formatPrice(order.getShippingCost()));
         binding.textTotal.setText(formatPrice(order.getTotalPrice()));
+    }
+
+    private void setupWebView(String paymentUrl) {
+        WebView webView = binding.webViewDetails;
+        WebSettings webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setDomStorageEnabled(true);
+        webSettings.setLoadWithOverviewMode(true);
+        webSettings.setUseWideViewPort(true);
+        webSettings.setBuiltInZoomControls(true);
+        webSettings.setDisplayZoomControls(false);
+
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                // Handle URL loading within the WebView
+                view.loadUrl(request.getUrl().toString());
+                return true;
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                // Hide loading indicator if you have one
+            }
+        });
+
+        // Load the payment URL
+        webView.loadUrl(paymentUrl);
     }
 
     private String calculateSubtotal(List<OrderItem> items) {

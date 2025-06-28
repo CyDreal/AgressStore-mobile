@@ -63,6 +63,7 @@ public class CheckoutFragment extends Fragment {
     private Address selectedAddress;
     private Courier selectedCourier;
     private ShippingService selectedService;
+    private String selectedPaymentMethod = "midtrans";
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -78,6 +79,8 @@ public class CheckoutFragment extends Fragment {
 
         // Setup views and listeners
         setupViews();
+
+        setupPaymentMethodSelection();
 
         setupPayButton();
 
@@ -407,6 +410,16 @@ public class CheckoutFragment extends Fragment {
         }
     }
 
+    private void setupPaymentMethodSelection() {
+        binding.paymentMethodGroup.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.radioCod) {
+                selectedPaymentMethod = "cod";
+            } else if (checkedId == R.id.radioMidtrans) {
+                selectedPaymentMethod = "midtrans";
+            }
+        });
+    }
+
     private void setupPayButton() {
         binding.btnPayNow.setOnClickListener(v -> {
             // Validation checks
@@ -434,15 +447,20 @@ public class CheckoutFragment extends Fragment {
                 return;
             }
 
-            RadioButton selectedPayment = binding.getRoot().findViewById(selectedId);
-            String paymentMethod = selectedPayment.getTag().toString(); // "midtrans" or "cod"
+//            RadioButton selectedPayment = binding.getRoot().findViewById(selectedId);
+//            String paymentMethod = selectedPayment.getTag().toString(); // "midtrans" or "cod"
 
-            createOrder();
+            // Show loading
+            ProgressDialog progressDialog = new ProgressDialog(requireContext());
+            progressDialog.setMessage("Memproses pesanan...");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+
+            createOrder(progressDialog);
         });
     }
 
-    private void createOrder() {
-        ProgressDialog progressDialog = new ProgressDialog(requireContext());
+    private void createOrder(ProgressDialog progressDialog) {
         progressDialog.setMessage("Memproses pesanan...");
         progressDialog.show();
 
@@ -485,31 +503,28 @@ public class CheckoutFragment extends Fragment {
             @Override
             public void onResponse(Call<CreateOrderResponse> call, Response<CreateOrderResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    CreateOrderResponse orderResponse = response.body();
-                    if (orderResponse.getStatus() == 1 && orderResponse.getOrder() != null) {
-                        int orderId = orderResponse.getOrder().getId();
-                        // Create Midtrans payment first
-                        createMidtransPayment(orderId, progressDialog);
-                    } else {
+                    int orderId = response.body().getOrder().getId();
+
+                    if ("cod".equals(selectedPaymentMethod)) {
+                        // For COD
+                        sessionManager.clearCart();
                         progressDialog.dismiss();
-                        showError(orderResponse.getMessage());
+                        Toast.makeText(requireContext(), "Pesanan Berhasil Dibuat", Toast.LENGTH_SHORT).show();
+                        Navigation.findNavController(requireView()).navigate(R.id.navigation_cart);
+                    } else {
+                        // For Midtrans
+                        createMidtransPayment(orderId, progressDialog);
                     }
                 } else {
                     progressDialog.dismiss();
-                    try {
-                        String errorBody = response.errorBody() != null ?
-                                response.errorBody().string() : "Unknown error";
-                        showError("Gagal membuat pesanan: " + errorBody);
-                    } catch (IOException e) {
-                        showError("Gagal membuat pesanan");
-                    }
+                    Toast.makeText(requireContext(), "Gagal membuat pesanan", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<CreateOrderResponse> call, Throwable t) {
                 progressDialog.dismiss();
-                showError("Network error: " + t.getMessage());
+                Toast.makeText(requireContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -607,46 +622,6 @@ public class CheckoutFragment extends Fragment {
             Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
         }
     }
-
-//    private void initiatePayment(ProgressDialog progressDialog, int orderId) {
-//        // Create payment request body
-//        Map<String, String> paymentData = new HashMap<>();
-//        paymentData.put("order_id", String.valueOf(orderId)); // You'll need to get the order_id from the previous response
-//        paymentData.put("user_id", sessionManager.getUserId());
-//
-//        // Make API call to create Midtrans payment
-//        ApiClient.getClient().createMidtransPayment(paymentData)
-//                .enqueue(new Callback<MidtransResponse>() {
-//                    @Override
-//                    public void onResponse(Call<MidtransResponse> call, Response<MidtransResponse> response) {
-//                        progressDialog.dismiss();
-//                        if (response.isSuccessful() && response.body() != null) {
-//                            MidtransResponse paymentResponse = response.body();
-//                            if (paymentResponse.getStatus() == 1) {
-//                                // Clear cart
-//                                sessionManager.clearCart();
-//
-//                                // Navigate to PaymentWebViewFragment
-//                                Bundle args = new Bundle();
-//                                args.putString("payment_url", paymentResponse.getData().getPaymentUrl());
-//                                args.putString("transaction_id", paymentResponse.getData().getToken());
-//                                Navigation.findNavController(requireView())
-//                                        .navigate(R.id.paymentWebViewFragment, args);
-//                            } else {
-//                                Toast.makeText(requireContext(), "Gagal memproses pembayaran", Toast.LENGTH_SHORT).show();
-//                            }
-//                        } else {
-//                            Toast.makeText(requireContext(), "Gagal memproses pembayaran", Toast.LENGTH_SHORT).show();
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Call<MidtransResponse> call, Throwable t) {
-//                        progressDialog.dismiss();
-//                        Toast.makeText(requireContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-//                    }
-//                });
-//    }
 
     @Override
     public void onDestroyView() {
