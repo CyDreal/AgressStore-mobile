@@ -107,15 +107,21 @@ public class SessionManager {
             editor.putString(KEY_POSTAL_CODE, user.getPostalCode());
             editor.putString(KEY_AVATAR, user.getAvatar());
             editor.putBoolean(KEY_IS_LOGGED_IN, true);
+            editor.putBoolean(KEY_IS_GUEST, false);
             editor.commit();
         }
     }
 
+//    public boolean isLoggedIn() {
+//        boolean isLoggedIn = pref.getBoolean(KEY_IS_LOGGED_IN,false);
+//        // Debug log
+//        System.out.println("Debug - IsLoggedIn: " + isLoggedIn);
+//        return isLoggedIn;
+//    }
+
     public boolean isLoggedIn() {
-        boolean isLoggedIn = pref.getBoolean(KEY_IS_LOGGED_IN,false);
-        // Debug log
-        System.out.println("Debug - IsLoggedIn: " + isLoggedIn);
-        return isLoggedIn;
+        // User is logged in only if isLoggedIn is true AND isGuest is false
+        return pref.getBoolean(KEY_IS_LOGGED_IN, false) && !pref.getBoolean(KEY_IS_GUEST, true);
     }
 
     public void createGuestSession() {
@@ -125,7 +131,8 @@ public class SessionManager {
     }
 
     public boolean isGuest() {
-        return pref.getBoolean(KEY_IS_GUEST, false);
+        // User is guest only if isGuest is true AND isLoggedIn is false
+        return pref.getBoolean(KEY_IS_GUEST, true) && !pref.getBoolean(KEY_IS_LOGGED_IN, false);
     }
 
     public void logout() {
@@ -156,6 +163,12 @@ public class SessionManager {
     public void clearCart() {
         editor.remove(KEY_CART);
         editor.remove(KEY_CART_COUNT);
+        editor.apply();
+    }
+
+    public void setGuestSession() {
+        editor.putBoolean(KEY_IS_GUEST, true);
+        editor.putBoolean(KEY_IS_LOGGED_IN, false);
         editor.apply();
     }
 

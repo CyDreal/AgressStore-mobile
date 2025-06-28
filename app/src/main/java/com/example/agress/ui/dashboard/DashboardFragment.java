@@ -29,6 +29,7 @@ import com.example.agress.api.response.ProductResponse;
 import com.example.agress.databinding.FragmentDashboardBinding;
 import com.example.agress.model.Category;
 import com.example.agress.model.Product;
+import com.example.agress.model.User;
 import com.example.agress.utils.SessionManager;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
@@ -106,14 +107,17 @@ public class DashboardFragment extends Fragment {
             tvUsername.setText(getString(R.string.guest_user));
         }
 
-        // Load profile image if available
-        String avatarUrl = sessionManager.getUser().getAvatar();
-        if (avatarUrl != null && !avatarUrl.isEmpty()) {
+        // Handle profile image
+        User user = sessionManager.getUser();
+        if (user != null && user.getAvatar() != null && !user.getAvatar().isEmpty()) {
             Glide.with(requireContext())
-                    .load(avatarUrl)
+                    .load(user.getAvatar())
                     .placeholder(R.drawable.default_image)
                     .error(R.drawable.error_img)
                     .into(ivProfile);
+        } else {
+            // Set default image for guest users or when avatar is not available
+            ivProfile.setImageResource(R.drawable.default_image);
         }
 
         // Set click listener for profile image

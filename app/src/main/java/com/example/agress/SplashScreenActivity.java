@@ -34,23 +34,20 @@ public class SplashScreenActivity extends AppCompatActivity {
         animationView.playAnimation();
 
         new Handler().postDelayed(() -> {
-            // Identify if user is logged in or not
-            boolean isLoggedIn = sessionManager.isLoggedIn();
-            String userId = sessionManager.getUserId();
-            String userName = sessionManager.getUsername();
-
-            if (isLoggedIn && userId != null && !userId.isEmpty()) {
-                // User is logged in, proceed to MainActivity
+            if (sessionManager.isLoggedIn()) {
+                // User is logged in, go to MainActivity
                 Intent intent = new Intent(SplashScreenActivity.this, MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
             } else {
-                // User is not logged in, proceed to UserIdentifyActivity
-                Intent intent = new Intent(SplashScreenActivity.this, UserIdentifyActivity.class);
+                // User is not logged in, set as guest and go to MainActivity
+                if (!sessionManager.isGuest()) {  // Only set guest session if not already a guest
+                    sessionManager.setGuestSession();
+                }
+                Intent intent = new Intent(SplashScreenActivity.this, MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
             }
-            finish();
         }, SPLASH_DURATION);
     }
 }

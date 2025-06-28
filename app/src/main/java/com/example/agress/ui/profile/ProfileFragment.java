@@ -53,7 +53,7 @@ public class ProfileFragment extends Fragment {
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         sessionManager = new SessionManager(requireContext());
 
-        if (sessionManager.isGuest()) {
+        if (!sessionManager.isLoggedIn()) {
             showLoginRequiredDialog();
         } else {
             setupUserInfo();
