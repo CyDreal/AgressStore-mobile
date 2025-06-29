@@ -139,7 +139,7 @@ public class ShippingAddressFragment extends Fragment {
         });
     }
 
-    private void showAddAddressDialog() {
+    public void showAddAddressDialog() {
         View dialogView = getLayoutInflater().inflate(R.layout.layout_dialog_add_address, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setView(dialogView);

@@ -193,5 +193,10 @@
             app:destination="@id/navigation_cart"
             app:popUpTo="@id/navigation_cart"
             app:popUpToInclusive="true"/>
+        <action
+            android:id="@+id/action_checkoutFragment_to_shippingAddressFragment"
+            app:destination="@id/shippingAddressFragment"
+            app:popUpTo="@id/navigation_checkout"
+            app:popUpToInclusive="false"/>
     </fragment>
 </navigation>

@@ -10,6 +10,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -45,6 +46,7 @@ import com.example.agress.model.Courier;
 import com.example.agress.model.Order;
 import com.example.agress.model.Product;
 import com.example.agress.model.ShippingService;
+import com.example.agress.ui.profile.ShippingAddressFragment;
 import com.example.agress.utils.CartManager;
 import com.example.agress.utils.CurrencyFormatter;
 import com.example.agress.utils.SessionManager;
@@ -107,6 +109,8 @@ public class CheckoutFragment extends Fragment {
         // Setup address selection
         binding.cardAddress.setOnClickListener(v -> showAddressSelectionDialog());
 
+        binding.btnAddAddress.setOnClickListener(v -> showAddAddressDialog());
+
         // Setup courier selection
         binding.cardCourier.setOnClickListener(v -> showCourierSelectionDialog());
 
@@ -116,6 +120,27 @@ public class CheckoutFragment extends Fragment {
         // Setup back button
         binding.btnBack.setOnClickListener(v ->
                 Navigation.findNavController(v).popBackStack());
+    }
+
+    private void showAddAddressDialog() {
+        // Find the ShippingAddressFragment in the back stack
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+        ShippingAddressFragment shippingAddressFragment = (ShippingAddressFragment) fragmentManager
+                .findFragmentByTag("shipping_address_fragment");
+
+        if (shippingAddressFragment != null) {
+            // If the fragment exists, show the dialog
+            shippingAddressFragment.showAddAddressDialog();
+        } else {
+            // If the fragment doesn't exist, navigate to it
+            Navigation.findNavController(requireView())
+                    .navigate(R.id.action_checkoutFragment_to_shippingAddressFragment);
+
+            // Show a message to add an address
+            Toast.makeText(requireContext(),
+                    "Silakan tambahkan alamat pengiriman",
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void showServiceSelectionDialog() {
