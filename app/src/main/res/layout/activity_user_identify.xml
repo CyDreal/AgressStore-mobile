@@ -102,7 +102,7 @@
                 android:layout_height="wrap_content"
                 android:text="Guest"
                 android:layout_margin="16dp"
-                android:backgroundTint="@color/primary"/>
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
 
             <!-- Custom Tab Layout -->
             <com.google.android.material.tabs.TabLayout

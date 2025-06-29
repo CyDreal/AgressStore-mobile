@@ -5,9 +5,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="2dp"
+    android:layout_margin="4dp"
     app:cardCornerRadius="12dp"
-    app:cardElevation="2dp">
+    app:cardElevation="1dp"
+    app:strokeColor="#10000000"
+    app:strokeWidth="0.5dp"
+    app:cardBackgroundColor="@color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,24 +19,31 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="200dp">
+            android:layout_height="180dp"
+            android:background="@color/background_gray">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/ivProduct"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scaleType="fitCenter"/>
+                android:scaleType="fitCenter"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.Medium"/>
 
             <TextView
                 android:id="@+id/tvSoldOut"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Sold Out"
-                android:textColor="@color/white"
-                android:background="@color/error"
-                android:padding="4dp"
                 android:layout_gravity="center"
-                android:visibility="gone"/>
+                android:background="@color/red_500"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp"
+                android:text="HABIS"
+                android:textAllCaps="true"
+                android:textColor="@color/white"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                tools:visibility="visible"/>
 
         </FrameLayout>
 
@@ -41,71 +51,75 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="12dp">
 
             <TextView
                 android:id="@+id/tvProductName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                android:textColor="@color/text_primary"
-                android:maxLines="2"
                 android:ellipsize="end"
-                tools:text="Product Name"/>
+                android:maxLines="2"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"
+                android:textStyle="normal"
+                tools:text="Product Name Example With Long Text That Should Wrap To Second Line"/>
 
             <TextView
                 android:id="@+id/tvPrice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
-                android:textColor="@color/primary"
-                android:maxLines="1"
                 android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/primary"
+                android:textSize="16sp"
                 android:textStyle="bold"
-                android:textSize="18sp"
                 tools:text="Rp 1.000.000"/>
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
+                android:gravity="center_vertical"
                 android:orientation="horizontal">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:textSize="12sp"
-                    android:text="Dilihat"
-                    android:textColor="@color/text_secondary"/>
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:src="@drawable/ic_eye"
+                    app:tint="@color/text_secondary"/>
+
                 <TextView
                     android:id="@+id/tvViewCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:textSize="12sp"
-                    android:text="0"
-                    android:layout_marginStart="10dp"
-                    android:textColor="@color/text_secondary"/>
+                    android:layout_marginStart="4dp"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp"
+                    tools:text="1.2k"/>
 
-                <!-- Add purchased quantity -->
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="12dp"
+                    android:layout_marginHorizontal="8dp"
+                    android:background="#E0E0E0"/>
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginStart="16dp"
-                    android:textSize="12sp"
                     android:text="Terjual"
-                    android:textColor="@color/text_secondary"/>
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp"/>
+
                 <TextView
                     android:id="@+id/tvPurchased"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:textSize="12sp"
-                    android:text="0"
-                    android:layout_marginStart="10dp"
-                    android:textColor="@color/text_secondary"/>
+                    android:layout_marginStart="4dp"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp"
+                    tools:text="500+"/>
+
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

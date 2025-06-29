@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white">
 
-    <!-- Custom Toolbar -->
+    <!-- Custom Toolbar with elevation -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primary">
+        android:background="@color/primary"
+        app:elevation="4dp">
 
-        <androidx.appcompat.widget.Toolbar
+        <com.google.android.material.appbar.MaterialToolbar
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:contentInsetStartWithNavigation="0dp">
+            app:contentInsetStartWithNavigation="0dp"
+            app:navigationIconTint="@color/white"
+            app:titleTextColor="@color/white"
+            app:titleTextAppearance="@style/TextAppearance.MaterialComponents.Headline6">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -33,13 +38,13 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
+                    android:layout_marginStart="8dp"
                     android:text="About Us"
                     android:textColor="@color/white"
                     android:textSize="20sp"
                     android:textStyle="bold" />
             </LinearLayout>
-        </androidx.appcompat.widget.Toolbar>
+        </com.google.android.material.appbar.MaterialToolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -52,53 +57,62 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Logo Section -->
-            <FrameLayout
+            <!-- Logo Section with subtle background -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp">
+                android:background="@drawable/bg_gradient_primary"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingVertical="32dp">
 
                 <ImageView
-                    android:layout_width="120dp"
-                    android:layout_height="30dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/logo" />
-            </FrameLayout>
+                    android:layout_width="160dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/logo"
+                    android:contentDescription="@string/app_name" />
 
-            <!-- Hero Image Section -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Your Trusted Electronics Partner"
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <!-- About Section -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp">
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/primary_light"
+                app:strokeWidth="1dp">
 
-                <FrameLayout
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/store" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/gradient_overlay_top" />
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="bottom|start"
-                        android:layout_margin="16dp"
-                        android:text="Your Trusted Electronics Store"
-                        android:textColor="@color/white"
-                        android:textSize="24sp"
+                        android:text="About AGRES ID"
+                        android:textColor="@color/primary"
+                        android:textSize="20sp"
                         android:textStyle="bold" />
-                </FrameLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:lineSpacingMultiplier="1.2"
+                        android:text="AGRES ID is your one-stop electronics store providing high-quality products and exceptional customer service. We are committed to bringing you the latest technology at competitive prices."
+                        android:textColor="@color/text_secondary" />
+                </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Info Cards Container -->
@@ -106,15 +120,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:paddingHorizontal="16dp"
+                android:paddingBottom="24dp">
 
-                <!-- Address Card -->
+                <!-- Location Card -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="4dp">
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
+                    app:strokeColor="#E0E0E0"
+                    app:strokeWidth="1dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -124,9 +141,9 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="@color/primary"
-                            android:gravity="center_vertical"
-                            android:padding="16dp">
+                            android:background="@drawable/bg_gradient_primary"
+                            android:padding="16dp"
+                            android:gravity="center_vertical">
 
                             <ImageView
                                 android:layout_width="24dp"
@@ -138,9 +155,9 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="12dp"
-                                android:text="Location"
+                                android:text="Our Location"
                                 android:textColor="@color/white"
-                                android:textSize="18sp"
+                                android:textSize="16sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
 
@@ -152,46 +169,53 @@
                             android:text="AGRES ID Semarang\nJl. MH Thamrin No.45, Miroto, Kec. Semarang Tengah, Kota Semarang, Jawa Tengah 50134"
                             android:textColor="@color/text_secondary" />
 
-                        <!-- Fixed height container for WebView -->
+                        <!-- Map View -->
                         <FrameLayout
                             android:layout_width="match_parent"
                             android:layout_height="200dp"
-                            android:layout_margin="16dp">
+                            android:layout_margin="16dp"
+                            android:background="@color/light_gray"
+                            android:foreground="?attr/selectableItemBackgroundBorderless">
 
                             <WebView
                                 android:id="@+id/mapWebView"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="@drawable/bg_map_overlay" />
                         </FrameLayout>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Contact and Hours Cards Row -->
+                <!-- Contact & Hours Row -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:baselineAligned="false"
                     android:orientation="horizontal">
 
                     <!-- Contact Card -->
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="0dp"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
                         android:layout_marginEnd="8dp"
                         android:layout_weight="1"
-                        android:layout_marginBottom="25dp"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="4dp">
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="2dp"
+                        app:strokeColor="#E0E0E0"
+                        app:strokeWidth="1dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
+                            android:layout_height="wrap_content"
                             android:orientation="vertical">
 
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:background="@color/primary"
+                                android:background="@drawable/bg_gradient_primary"
                                 android:gravity="center_vertical"
                                 android:padding="16dp">
 
@@ -205,42 +229,81 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="12dp"
-                                    android:text="Contact"
+                                    android:text="Contact Us"
                                     android:textColor="@color/white"
-                                    android:textSize="18sp"
+                                    android:textSize="16sp"
                                     android:textStyle="bold" />
                             </LinearLayout>
 
-                            <TextView
+                            <LinearLayout
                                 android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:layout_margin="16dp"
-                                android:gravity="center_vertical"
-                                android:lineSpacingExtra="8dp"
-                                android:text="024-3500-500\n0899-033-5000\nsemarang@els.co.id"
-                                android:textColor="@color/text_secondary" />
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:padding="16dp">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:paddingVertical="8dp">
+
+                                    <ImageView
+                                        android:layout_width="20dp"
+                                        android:layout_height="20dp"
+                                        android:src="@drawable/ic_phone_24px"
+                                        app:tint="@color/primary" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="12dp"
+                                        android:text="0899-033-5000"
+                                        android:textColor="@color/text_secondary" />
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:paddingVertical="8dp">
+
+                                    <ImageView
+                                        android:layout_width="20dp"
+                                        android:layout_height="20dp"
+                                        android:src="@drawable/mail_24px"
+                                        app:tint="@color/primary" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="12dp"
+                                        android:text="semarang@els.co.id"
+                                        android:textColor="@color/text_secondary" />
+                                </LinearLayout>
+                            </LinearLayout>
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
                     <!-- Hours Card -->
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="0dp"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:layout_weight="1"
-                        android:layout_marginBottom="25dp"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="4dp">
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="2dp"
+                        app:strokeColor="#E0E0E0"
+                        app:strokeWidth="1dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
+                            android:layout_height="wrap_content"
                             android:orientation="vertical">
 
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:background="@color/primary"
+                                android:background="@drawable/bg_gradient_primary"
                                 android:gravity="center_vertical"
                                 android:padding="16dp">
 
@@ -254,20 +317,48 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="12dp"
-                                    android:text="Hours"
+                                    android:text="Opening Hours"
                                     android:textColor="@color/white"
-                                    android:textSize="18sp"
+                                    android:textSize="16sp"
                                     android:textStyle="bold" />
                             </LinearLayout>
 
-                            <TextView
+                            <LinearLayout
                                 android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:layout_margin="16dp"
-                                android:gravity="center_vertical"
-                                android:lineSpacingExtra="4dp"
-                                android:text="Open Daily:\nMon – Sun\n08:30 – 21:00"
-                                android:textColor="@color/text_secondary" />
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:padding="16dp">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:drawablePadding="8dp"
+                                    android:drawableStart="@drawable/ic_circle_8dp"
+                                    android:drawableTint="@color/green_500"
+                                    android:gravity="center_vertical"
+                                    android:lineSpacingExtra="4dp"
+                                    android:paddingVertical="8dp"
+                                    android:text="Mon - Sun"
+                                    android:textColor="@color/text_primary" />
+
+                                <View
+                                    android:layout_width="match_parent"
+                                    android:layout_height="1dp"
+                                    android:layout_marginVertical="4dp"
+                                    android:background="#EEEEEE" />
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:drawablePadding="8dp"
+                                    android:drawableStart="@drawable/ic_circle_8dp"
+                                    android:drawableTint="@color/red_500"
+                                    android:gravity="center_vertical"
+                                    android:lineSpacingExtra="4dp"
+                                    android:paddingVertical="8dp"
+                                    android:text="08:30 - 21:00 WIB"
+                                    android:textColor="@color/text_primary" />
+                            </LinearLayout>
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
