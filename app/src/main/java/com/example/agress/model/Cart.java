@@ -52,16 +52,15 @@ public class Cart {
     public CartItem toCartItem() {
         if (this.product != null && this.product.getImages() != null
                 && !this.product.getImages().isEmpty()) {
-            CartItem item = new CartItem(
-                    this.product.getId(),
+            return new CartItem(
+                    this.id,
+                    this.product_id,
                     this.product.getProductName(),
                     this.product.getPrice(),
                     this.quantity,
                     this.product.getImages().get(0).getImageUrl(),
                     this.product.getStock()
             );
-            item.setId(this.id); // Set cart ID
-            return item;
         }
         return null;
     }

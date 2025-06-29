@@ -8,6 +8,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -29,6 +30,7 @@ import com.example.agress.adapter.CourierAdapter;
 import com.example.agress.adapter.ServiceAdapter;
 import com.example.agress.api.ApiClient;
 import com.example.agress.api.response.AddressResponse;
+import com.example.agress.api.response.CartListResponse;
 import com.example.agress.api.response.CourierResponse;
 import com.example.agress.api.response.CreateOrderResponse;
 import com.example.agress.api.response.MidtransResponse;
@@ -37,11 +39,14 @@ import com.example.agress.api.response.ProductDetailResponse;
 import com.example.agress.api.response.ShippingCostResponse;
 import com.example.agress.databinding.FragmentCheckoutBinding;
 import com.example.agress.model.Address;
+import com.example.agress.model.Cart;
 import com.example.agress.model.CartItem;
 import com.example.agress.model.Courier;
 import com.example.agress.model.Order;
 import com.example.agress.model.Product;
 import com.example.agress.model.ShippingService;
+import com.example.agress.utils.CartManager;
+import com.example.agress.utils.CurrencyFormatter;
 import com.example.agress.utils.SessionManager;
 
 import java.io.IOException;
@@ -58,8 +63,9 @@ import retrofit2.Response;
 public class CheckoutFragment extends Fragment {
     private FragmentCheckoutBinding binding;
     private SessionManager sessionManager;
+    private List<CartItem> cartItems = new ArrayList<>();
+    private CartManager cartManager;
     private CheckoutItemAdapter adapter;
-    private static final int SHIPPING_COST = 10000; // Example shipping cost
     private Address selectedAddress;
     private Courier selectedCourier;
     private ShippingService selectedService;
@@ -195,11 +201,15 @@ public class CheckoutFragment extends Fragment {
         return services;
     }
 
-    // saya melakukan request ke API lagi untuk mendapatkan total berat dari semua item di keranjang diakrenakan tidak ingin mengubah model cart dan cartitem demi menghindari error
+
     private void calculateTotalWeightAsync(OnWeightCalculatedListener listener) {
-        List<CartItem> cartItems = sessionManager.getCartItems();
         AtomicInteger totalWeight = new AtomicInteger(0);
         AtomicInteger processedItems = new AtomicInteger(0);
+
+        if (cartItems.isEmpty()) {
+            listener.onWeightCalculated(0);
+            return;
+        }
 
         for (CartItem item : cartItems) {
             ApiClient.getClient().getProductDetail(item.getProductId())
@@ -221,8 +231,7 @@ public class CheckoutFragment extends Fragment {
 
                         @Override
                         public void onFailure(Call<ProductDetailResponse> call, Throwable t) {
-                            processedItems.incrementAndGet();
-                            if (processedItems.get() == cartItems.size()) {
+                            if (processedItems.incrementAndGet() == cartItems.size()) {
                                 requireActivity().runOnUiThread(() ->
                                         listener.onWeightCalculated(totalWeight.get())
                                 );
@@ -316,8 +325,60 @@ public class CheckoutFragment extends Fragment {
     }
 
     private void loadCartItems() {
-        List<CartItem> cartItems = sessionManager.getCartItems();
-        adapter.setItems(cartItems);
+        if (sessionManager.isLoggedIn()) {
+            loadCartFromServer();
+        } else {
+            loadLocalCart();
+        }
+    }
+
+    private void loadCartFromServer() {
+        String userId = sessionManager.getUserId();
+        if (userId.isEmpty()) {
+            showError("User not logged in");
+            return;
+        }
+
+        showLoading(true);
+        ApiClient.getClient().getUserCarts(userId).enqueue(new Callback<CartListResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<CartListResponse> call,
+                                   @NonNull Response<CartListResponse> response) {
+                showLoading(false);
+                if (response.isSuccessful() && response.body() != null) {
+                    cartItems.clear();
+                    for (Cart cart : response.body().getCarts()) {
+                        CartItem item = cart.toCartItem();
+                        if (item != null) {
+                            cartItems.add(item);
+                        }
+                    }
+                    adapter.setItems(new ArrayList<>(cartItems));
+                    updateSummary();
+                } else {
+                    showError("Failed to load cart");
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<CartListResponse> call,
+                                  @NonNull Throwable t) {
+                showLoading(false);
+                showError("Network error: " + t.getMessage());
+            }
+        });
+    }
+
+    private void showLoading(boolean show) {
+        binding.progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
+    private void loadLocalCart() {
+        // Implement this method to load cart from local storage
+        cartItems.clear();
+        cartItems.addAll(cartManager.getCartItems());
+        adapter.setItems(new ArrayList<>(cartItems));
+        updateSummary();
     }
 
     private void loadAddress() {
@@ -330,10 +391,8 @@ public class CheckoutFragment extends Fragment {
     }
 
     private void updateSummary() {
-        List<CartItem> items = sessionManager.getCartItems();
-
-        // Calculate subtotal (total harga items)
-        int subtotal = items.stream()
+        // Use the class field cartItems instead of getting from session
+        int subtotal = cartItems.stream()
                 .mapToInt(item -> item.getPrice() * item.getQuantity())
                 .sum();
 
@@ -342,15 +401,18 @@ public class CheckoutFragment extends Fragment {
         int totalPrice = subtotal + shippingCost;
 
         // Update UI
-        binding.textTotalItems.setText(String.format("Total Harga (%d barang)     Rp %,d", items.size(), subtotal));
+        binding.textTotalItems.setText(String.format("Total Harga (%d barang)     %s",
+                cartItems.size(), CurrencyFormatter.formatRupiah(subtotal)));
+
         if (selectedService != null) {
-            binding.textShippingCost.setText(String.format("Ongkos Kirim (%s)     Rp %,d",
+            binding.textShippingCost.setText(String.format("Ongkos Kirim (%s)     %s",
                     selectedCourier.getName(),
-                    shippingCost));
+                    CurrencyFormatter.formatRupiah(shippingCost)));
         } else {
-            binding.textShippingCost.setText("Ongkos Kirim     Rp 0");
+            binding.textShippingCost.setText("Pilih jasa pengiriman");
         }
-        binding.textPriceBottom.setText(String.format("Rp %,d", totalPrice));
+
+        binding.textPriceBottom.setText(CurrencyFormatter.formatRupiah(totalPrice));
     }
 
     private void showCourierSelectionDialog() {
@@ -469,15 +531,15 @@ public class CheckoutFragment extends Fragment {
         String paymentMethod = ((RadioButton) binding.getRoot()
                 .findViewById(paymentGroup.getCheckedRadioButtonId())).getTag().toString();
 
-        // Calculate total price
-        List<CartItem> items = sessionManager.getCartItems();
-        if (items.isEmpty()) {
+        // Check if cart is empty
+        if (cartItems.isEmpty()) {
             progressDialog.dismiss();
             Toast.makeText(requireContext(), "Keranjang kosong", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        int subtotal = items.stream()
+        // Calculate total price
+        int subtotal = cartItems.stream()
                 .mapToInt(item -> item.getPrice() * item.getQuantity())
                 .sum();
         int totalPrice = subtotal + selectedService.getCost().getValue();
@@ -497,7 +559,7 @@ public class CheckoutFragment extends Fragment {
         orderData.put("total_price", totalPrice);
         orderData.put("etd_days", selectedService.getCost().getEtd());
         orderData.put("status", "pending");
-        orderData.put("items", items); // Add cart items to request
+        orderData.put("items", cartItems); // Add cart items to request
 
         ApiClient.getClient().createOrder(orderData).enqueue(new Callback<CreateOrderResponse>() {
             @Override
@@ -507,7 +569,6 @@ public class CheckoutFragment extends Fragment {
 
                     if ("cod".equals(selectedPaymentMethod)) {
                         // For COD
-                        sessionManager.clearCart();
                         progressDialog.dismiss();
                         Toast.makeText(requireContext(), "Pesanan Berhasil Dibuat", Toast.LENGTH_SHORT).show();
                         Navigation.findNavController(requireView()).navigate(R.id.navigation_cart);
@@ -582,9 +643,6 @@ public class CheckoutFragment extends Fragment {
                         Log.d("OrderDetails", "Payment Token: " + paymentToken);
 
                         if (paymentUrl != null && !paymentUrl.isEmpty()) {
-                            // Clear cart after successful order
-                            sessionManager.clearCart();
-
                             // Navigate to payment webview
                             Bundle args = new Bundle();
                             args.putString("payment_url", paymentUrl);

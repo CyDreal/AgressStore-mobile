@@ -66,7 +66,7 @@ public class LoginFragment extends Fragment {
                         if (user.getAvatar() != null && !user.getAvatar().isEmpty()) {
                             sessionManager.saveAvatar(user.getAvatar());
                         }
-                        loadUserCart(user.getUserId());
+                        navigateToMain();
                     } else {
                         Toast.makeText(requireContext(),
                                 "Invalid user data received", Toast.LENGTH_SHORT).show();
@@ -90,41 +90,48 @@ public class LoginFragment extends Fragment {
         });
     }
 
-    private void loadUserCart(String userId) {
-        ApiClient.getClient().getUserCarts(userId)
-                .enqueue(new Callback<CartListResponse>() {
-                    @Override
-                    public void onResponse(Call<CartListResponse> call,
-                                        Response<CartListResponse> response) {
-                        if (response.isSuccessful() && response.body() != null) {
-                            List<Cart> carts = response.body().getCarts();
-                            updateSessionManagerCart(carts);
-                        }
-                        navigateToMain();
-                    }
+//    private void loadUserCart(String userId) {
+//        ApiClient.getClient().getUserCarts(userId)
+//                .enqueue(new Callback<CartListResponse>() {
+//                    @Override
+//                    public void onResponse(Call<CartListResponse> call,
+//                                        Response<CartListResponse> response) {
+//                        if (response.isSuccessful() && response.body() != null) {
+//                            List<Cart> carts = response.body().getCarts();
+//                            updateSessionManagerCart(carts);
+//                        }
+//                        navigateToMain();
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<CartListResponse> call, Throwable t) {
+//                        navigateToMain();
+//                    }
+//                });
+//    }
 
-                    @Override
-                    public void onFailure(Call<CartListResponse> call, Throwable t) {
-                        navigateToMain();
-                    }
-                });
-    }
-
-    private void updateSessionManagerCart(List<Cart> carts) {
-        sessionManager.clearCart();
-        for (Cart cart : carts) {
-            CartItem item = cart.toCartItem();
-            if (item != null) {
-                sessionManager.addToCart(item);
-            }
-        }
-    }
+//    private void updateSessionManagerCart(List<Cart> carts) {
+//        sessionManager.clearCart();
+//        for (Cart cart : carts) {
+//            CartItem item = cart.toCartItem();
+//            if (item != null) {
+//                sessionManager.addToCart(item);
+//            }
+//        }
+//    }
 
     private void navigateToMain() {
-        Intent intent = new Intent(requireContext(), MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        requireActivity().finish();
+        if (isAdded() && !isDetached()) {
+            // Clear the back stack and navigate to main activity
+            Intent intent = new Intent(requireContext(), MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+
+            // Finish the current activity (AuthActivity or whatever hosts LoginFragment)
+            if (getActivity() != null) {
+                getActivity().finish();
+            }
+        }
     }
 
     @Override

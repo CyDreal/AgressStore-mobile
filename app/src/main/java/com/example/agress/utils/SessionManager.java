@@ -27,47 +27,48 @@ public class SessionManager {
     private static final String KEY_AVATAR = "user_avatar";
     private static final String KEY_IS_GUEST = "isGuest";
     private static final String KEY_USER = "user";
+
+    private final SharedPreferences pref;
+    private final SharedPreferences.Editor editor;
     private final Gson gson = new Gson();
-    private static final String KEY_CART = "cart";
-    private static final String KEY_CART_COUNT = "cart_count";
 
-    private SharedPreferences pref;
-    private SharedPreferences.Editor editor;
-    private Context context;
+    public SessionManager(Context context) {
+        this.pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        this.editor = pref.edit();
+    }
 
-    // Metod Getter
     public String getUserId() {
         String userId = pref.getString(KEY_USER_ID, "");
-        // Debug log
         System.out.println("Debug - Getting UserId from Session: " + userId);
         return userId;
     }
+
     public String getUsername() {
         return pref.getString(KEY_USERNAME, "");
     }
+
     public String getEmail() {
         return pref.getString(KEY_EMAIL, "");
     }
+
     public String getAddress() {
         return pref.getString(KEY_ADDRESS, "");
     }
+
     public String getCity() {
         return pref.getString(KEY_CITY, "");
     }
+
     public String getProvince() {
         return pref.getString(KEY_PROVINCE, "");
     }
+
     public String getPhone() {
         return pref.getString(KEY_PHONE, "");
     }
+
     public String getPostalCode() {
         return pref.getString(KEY_POSTAL_CODE, "");
-    }
-
-    public SessionManager(Context context) {
-        this.context = context;
-        pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        editor = pref.edit();
     }
 
     public User getUser() {
@@ -76,7 +77,6 @@ public class SessionManager {
             return gson.fromJson(userJson, User.class);
         }
 
-        // If no JSON stored, create User object from individual fields
         if (isLoggedIn()) {
             User user = new User();
             user.setUserId(getUserId());
@@ -108,62 +108,22 @@ public class SessionManager {
             editor.putString(KEY_AVATAR, user.getAvatar());
             editor.putBoolean(KEY_IS_LOGGED_IN, true);
             editor.putBoolean(KEY_IS_GUEST, false);
-            editor.commit();
+            editor.apply();
         }
     }
 
-//    public boolean isLoggedIn() {
-//        boolean isLoggedIn = pref.getBoolean(KEY_IS_LOGGED_IN,false);
-//        // Debug log
-//        System.out.println("Debug - IsLoggedIn: " + isLoggedIn);
-//        return isLoggedIn;
-//    }
-
     public boolean isLoggedIn() {
-        // User is logged in only if isLoggedIn is true AND isGuest is false
         return pref.getBoolean(KEY_IS_LOGGED_IN, false) && !pref.getBoolean(KEY_IS_GUEST, true);
     }
 
     public void createGuestSession() {
         editor.clear();
         editor.putBoolean(KEY_IS_GUEST, true);
-        editor.apply(); // menggunakan apply() untuk penyimpanan asynchronous
+        editor.apply();
     }
 
     public boolean isGuest() {
-        // User is guest only if isGuest is true AND isLoggedIn is false
         return pref.getBoolean(KEY_IS_GUEST, true) && !pref.getBoolean(KEY_IS_LOGGED_IN, false);
-    }
-
-    public void logout() {
-        editor.clear();
-        editor.apply(); // menggunakan apply() untuk penyimpanan asynchronous
-    }
-
-    public void addToCart(CartItem item) {
-        String cartJson = pref.getString(KEY_CART, "{}");
-        Type type = new TypeToken<Map<Integer, CartItem>>(){}.getType();
-        Map<Integer, CartItem> cart = gson.fromJson(cartJson, type);
-
-        // Langsung masukkan item baru, tanpa menambahkan quantity
-        cart.put(item.getProductId(), item);
-
-        editor.putString(KEY_CART, gson.toJson(cart));
-        editor.putInt(KEY_CART_COUNT, cart.size());
-        editor.apply();
-    }
-
-    public List<CartItem> getCartItems() {
-        String cartJson = pref.getString(KEY_CART, "{}");
-        Type type = new TypeToken<Map<Integer, CartItem>>(){}.getType();
-        Map<Integer, CartItem> cart = gson.fromJson(cartJson, type);
-        return new ArrayList<>(cart.values());
-    }
-
-    public void clearCart() {
-        editor.remove(KEY_CART);
-        editor.remove(KEY_CART_COUNT);
-        editor.apply();
     }
 
     public void setGuestSession() {
@@ -172,10 +132,15 @@ public class SessionManager {
         editor.apply();
     }
 
+    public void logout() {
+        editor.clear();
+        editor.apply();
+    }
+
     public void saveAvatar(String avatarUrl) {
         if (avatarUrl != null && !avatarUrl.isEmpty()) {
             editor.putString(KEY_AVATAR, avatarUrl);
-            editor.commit();
+            editor.apply();
         }
     }
 

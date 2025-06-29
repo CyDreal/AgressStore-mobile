@@ -20,7 +20,8 @@ public class CheckoutItemAdapter extends RecyclerView.Adapter<CheckoutItemAdapte
     private List<CartItem> items = new ArrayList<>();
 
     public void setItems(List<CartItem> items) {
-        this.items = items;
+        this.items.clear();
+        this.items.addAll(items);
         notifyDataSetChanged();
     }
 

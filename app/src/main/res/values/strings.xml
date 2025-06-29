@@ -8,6 +8,14 @@
     <string name="order_number">Order #%d</string>
     <string name="payment_method">Payment Method: %s</string>
     <string name="transaction_id">Transaction ID: %1$s</string>
+    <string name="delete_item">Delete item</string>
+    <string name="decrease_quantity">Decrease quantity</string>
+    <string name="stock_available">Stok: %d</string>
+    <string name="max_stock_reached">Stok maksimum tercapai</string>
+    <string name="remove_item">Hapus Item</string>
+    <string name="confirm_remove_item">Apakah Anda yakin ingin menghapus item ini dari keranjang?</string>
+    <string name="remove">Hapus</string>
+    <string name="cancel">Batal</string>
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>

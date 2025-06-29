@@ -1,5 +1,6 @@
 package com.example.agress.ui.product;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
@@ -31,7 +32,10 @@ import com.example.agress.model.Cart;
 import com.example.agress.model.CartItem;
 import com.example.agress.model.Product;
 import com.example.agress.model.ProductImage;
+import com.example.agress.utils.CartManager;
 import com.example.agress.utils.SessionManager;
+import com.google.android.material.badge.BadgeDrawable;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -51,9 +55,7 @@ public class ProductDetailFragment extends Fragment {
     private ProductThumbnailAdapter thumbnailAdapter;
     private boolean isDestroyed = false;
     private SessionManager sessionManager;
-    private Call<?> activeCall; // Menangani error yang terjadi karena race condition antara network
-                                // call dan lifecycle fragment. Saat user cepat kembali sebelum response selesai,
-                                // binding sudah null tapi callback masih mencoba mengakses view.
+    private CartManager cartManager;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -61,6 +63,8 @@ public class ProductDetailFragment extends Fragment {
         if (getArguments() != null) {
             productId = getArguments().getInt("product_id");
         }
+        sessionManager = new SessionManager(requireContext());
+        cartManager = new CartManager(requireContext());
     }
 
     @Override
@@ -150,6 +154,13 @@ public class ProductDetailFragment extends Fragment {
     }
 
     private void displayProductDetails(Product product) {
+
+        if (product.getStock() > 0) {
+            setupAddToCartButton(product);
+        } else {
+            binding.btnAddToCart.setEnabled(false);
+            binding.btnAddToCart.setText("Out of Stock");
+        }
         // Display main image (image_order = 0)
         if (product.getImages() != null && !product.getImages().isEmpty()) {
             // Sort images based on image_order
@@ -192,122 +203,266 @@ public class ProductDetailFragment extends Fragment {
         binding.tvSoldOut.setVisibility(isAvailable ? View.GONE : View.VISIBLE);
 
         // Setup add to cart functionality
-        if (isAvailable && product.getStock() > 0) {
-            setupAddToCart(product);
-        }
+//        binding.btnAddToCart.setOnClickListener(v -> {
+//            if (isAvailable && product.getStock() > 0) {
+//                setupAddToCartButton(product);
+//            }
+//        });
     }
 
-    private void setupAddToCart(Product product) {
+//    private void addToCart(Product product) {
+//        if (isDestroyed || binding == null) return;
+//
+//        binding.progressBar.setVisibility(View.VISIBLE);
+//        binding.btnAddToCart.setEnabled(false);
+//
+//        if (product != null) {
+//            CartItem cartItem = new CartItem(
+//                    0, // id (0 for new items)
+//                    product.getId(),
+//                    product.getProductName(),
+//                    product.getPrice(),
+//                    1, // Default quantity
+//                    product.getImages() != null && !product.getImages().isEmpty() ?
+//                            product.getImages().get(0).getImageUrl() : "",
+//                    product.getStock()
+//            );
+//
+//            if (!sessionManager.isLoggedIn()) {
+//                // For guest users
+//                cartManager.addToCart(cartItem);
+//                showToast("Added to cart");
+//                updateUI();
+//            } else {
+//                // For logged-in users
+//                apiService.addToCart(sessionManager.getUserId(), product.getId(), 1)
+//                        .enqueue(new Callback<CartResponse>() {
+//                            @Override
+//                            public void onResponse(Call<CartResponse> call, Response<CartResponse> response) {
+//                                if (isDestroyed || binding == null) return;
+//                                if (response.isSuccessful()) {
+//                                    showToast("Added to cart");
+//                                } else {
+//                                    showToast("Failed to add to cart");
+//                                }
+//                                updateUI();
+//                            }
+//
+//                            @Override
+//                            public void onFailure(Call<CartResponse> call, Throwable t) {
+//                                if (isDestroyed || binding == null) return;
+//                                showToast("Network error");
+//                                updateUI();
+//                            }
+//                        });
+//            }
+//        } else {
+//            // Handle case where product is null
+//            binding.btnAddToCart.setEnabled(true);
+//            Toast.makeText(requireContext(), "Product information is not available", Toast.LENGTH_SHORT).show();
+//        }
+//    }
+
+    private void setupAddToCartButton(Product product) {
         binding.btnAddToCart.setOnClickListener(v -> {
-            if (!sessionManager.isLoggedIn()) {
-                showLoginRequiredDialog();
-                return;
+            if (sessionManager.isGuest()) {
+                // Handle guest cart
+                handleGuestAddToCart(product);
+            } else {
+                // Handle logged in user cart
+                handleUserAddToCart(product);
             }
+        });
+    }
 
-            if (product.getImages() == null || product.getImages().isEmpty()) {
-                return;
+    private void handleGuestAddToCart(Product product) {
+        CartManager cartManager = new CartManager(requireContext());
+
+        // Check if product already exists in cart
+        if (cartManager.hasItem(product.getId())) {
+            // Get current quantity and increment
+            CartItem existingItem = cartManager.getCartMap().get(product.getId());
+            if (existingItem != null) {
+                int newQuantity = existingItem.getQuantity() + 1;
+                if (newQuantity > product.getStock()) {
+                    Toast.makeText(requireContext(),
+                            "Jumlah melebihi stok yang tersedia",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                existingItem.setQuantity(newQuantity);
+                cartManager.updateCartItem(existingItem);
+                Toast.makeText(requireContext(),
+                        "Jumlah berhasil ditambah",
+                        Toast.LENGTH_SHORT).show();
             }
+        } else {
+            // Add new item to cart
+            String imageUrl = product.getImages() != null && !product.getImages().isEmpty() ?
+                    product.getImages().get(0).getImageUrl() : "";
 
-            // Show loading
-            showLoading();
-
-            // Create new CartItem
             CartItem newItem = new CartItem(
+                    0,
                     product.getId(),
                     product.getProductName(),
                     product.getPrice(),
-                    1,
-                    product.getImages().get(0).getImageUrl(),
+                    1, // Default quantity
+                    product.getImages() != null && !product.getImages().isEmpty() ?
+                            product.getImages().get(0).getImageUrl() : "",
                     product.getStock()
             );
 
-            List<CartItem> currentCart = sessionManager.getCartItems();
-            boolean productExists = false;
-            int newQuantity = 1;
+            cartManager.addToCart(newItem);
+            Toast.makeText(requireContext(),
+                    "Produk ditambahkan ke keranjang",
+                    Toast.LENGTH_SHORT).show();
+        }
 
-            // Check if product exists in cart and calculate new quantity
-            for (CartItem existingItem : currentCart) {
-                if (existingItem.getProductId() == product.getId()) {
-                    newQuantity = existingItem.getQuantity() + 1;
-                    if (newQuantity > product.getStock()) {
-                        hideLoading();
-                        showToast("Cannot exceed available stock");
-                        return;
-                    }
-                    productExists = true;
-                    break;
-                }
-            }
-
-            // Update both SessionManager and Database
-            syncCartUpdate(product.getId(), newQuantity, newItem, productExists);
-        });
+        // Update cart count in UI if needed
+        updateCartBadge();
     }
 
-    private void syncCartUpdate(int productId, int newQuantity, CartItem newItem, boolean productExists) {
-        apiService.addToCart(
-                sessionManager.getUserId(),
-                productId,
-                newQuantity
-        ).enqueue(new Callback<CartResponse>() {
-            @Override
-            public void onResponse(@NonNull Call<CartResponse> call,
-                                   @NonNull Response<CartResponse> response) {
-                if (response.isSuccessful()) {
-                    refreshUserCart();
-                    if (productExists) {
-                        showToast("Cart quantity updated");
-                    } else {
-                        showToast("Product added to cart");
-                    }
-                } else {
-                    hideLoading();
-                    showToast("Failed to update cart");
-                }
-            }
+    private void handleUserAddToCart(Product product) {
+        // Show loading
+        ProgressDialog progressDialog = new ProgressDialog(requireContext());
+        progressDialog.setMessage("Menambahkan ke keranjang...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
 
-            @Override
-            public void onFailure(@NonNull Call<CartResponse> call,
-                                  @NonNull Throwable t) {
-                hideLoading();
-                showToast("Network error occurred");
-            }
-        });
-    }
-
-    private void refreshUserCart() {
+        // First, get the current cart to check if product exists
+        ApiService apiService = ApiClient.getClient();
         apiService.getUserCarts(sessionManager.getUserId())
                 .enqueue(new Callback<CartListResponse>() {
                     @Override
-                    public void onResponse(@NonNull Call<CartListResponse> call,
-                                           @NonNull Response<CartListResponse> response) {
-                        hideLoading();
+                    public void onResponse(Call<CartListResponse> call, Response<CartListResponse> response) {
                         if (response.isSuccessful() && response.body() != null) {
-                            updateSessionManagerCart(response.body().getCarts());
+                            // Check if product exists in cart
+                            boolean productExists = false;
+                            int existingQuantity = 0;
+                            String cartItemId = null;
+
+                            for (Cart cart : response.body().getCarts()) {
+                                if (cart.getProductId() == product.getId()) {
+                                    productExists = true;
+                                    existingQuantity = cart.getQuantity();
+                                    cartItemId = String.valueOf(cart.getId());
+                                    break;
+                                }
+                            }
+
+                            if (productExists) {
+                                // Update existing cart item
+                                updateCartItemQuantity(cartItemId, existingQuantity + 1, product, progressDialog);
+                            } else {
+                                // Add new item to cart
+                                addNewCartItem(product, progressDialog);
+                            }
                         } else {
-                            showToast("Failed to refresh cart");
+                            progressDialog.dismiss();
+                            Toast.makeText(requireContext(),
+                                    "Gagal memuat keranjang",
+                                    Toast.LENGTH_SHORT).show();
                         }
                     }
 
                     @Override
-                    public void onFailure(@NonNull Call<CartListResponse> call,
-                                          @NonNull Throwable t) {
-                        hideLoading();
-                        showToast("Network error occurred");
+                    public void onFailure(Call<CartListResponse> call, Throwable t) {
+                        progressDialog.dismiss();
+                        Toast.makeText(requireContext(),
+                                "Error: " + t.getMessage(),
+                                Toast.LENGTH_SHORT).show();
                     }
                 });
     }
-    private void updateSessionManagerCart(List<Cart> carts) {
-        // Clear existing cart in SessionManager
-        sessionManager.clearCart();
 
-        // Add new items from API response
-        for (Cart cart : carts) {
-            CartItem item = cart.toCartItem();
-            if (item != null) {
-                sessionManager.addToCart(item);
-            }
+    private void updateCartItemQuantity(String cartItemId, int newQuantity, Product product, ProgressDialog progressDialog) {
+        if (newQuantity > product.getStock()) {
+            progressDialog.dismiss();
+            Toast.makeText(requireContext(),
+                    "Jumlah melebihi stok yang tersedia",
+                    Toast.LENGTH_SHORT).show();
+            return;
         }
+
+        // Since the API doesn't have an update endpoint, we'll remove and re-add
+        // This is not ideal but works with the current API
+        ApiService apiService = ApiClient.getClient();
+
+        // First remove the existing item
+        apiService.removeFromCart(cartItemId).enqueue(new Callback<BaseResponse>() {
+            @Override
+            public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
+                // Then add it back with the new quantity
+                addNewCartItem(product, progressDialog, newQuantity);
+            }
+
+            @Override
+            public void onFailure(Call<BaseResponse> call, Throwable t) {
+                progressDialog.dismiss();
+                Toast.makeText(requireContext(),
+                        "Gagal memperbarui keranjang",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void addNewCartItem(Product product, ProgressDialog progressDialog) {
+        addNewCartItem(product, progressDialog, 1);
+    }
+
+    private void addNewCartItem(Product product, ProgressDialog progressDialog, int quantity) {
+        ApiService apiService = ApiClient.getClient();
+        apiService.addToCart(
+                sessionManager.getUserId(),
+                product.getId(),
+                quantity
+        ).enqueue(new Callback<CartResponse>() {
+            @Override
+            public void onResponse(Call<CartResponse> call, Response<CartResponse> response) {
+                progressDialog.dismiss();
+                if (response.isSuccessful() && response.body() != null) {
+                    Toast.makeText(requireContext(),
+                            quantity > 1 ? "Jumlah berhasil ditambah" : "Produk ditambahkan ke keranjang",
+                            Toast.LENGTH_SHORT).show();
+                    updateCartBadge();
+                } else {
+                    Toast.makeText(requireContext(),
+                            "Gagal menambahkan ke keranjang",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CartResponse> call, Throwable t) {
+                progressDialog.dismiss();
+                Toast.makeText(requireContext(),
+                        "Error: " + t.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void updateCartBadge() {
+        // Implement your cart badge update logic here
+        // For example, if you're using BottomNavigationView with a badge:
+
+//        BottomNavigationView bottomNav = requireActivity().findViewById(R.id.nav_view);
+//        BadgeDrawable badge = bottomNav.getOrCreateBadge(R.id.navigation_cart);
+//        CartManager cartManager = new CartManager(requireContext());
+//        int itemCount = cartManager.getCartItemCount();
+//        if (itemCount > 0) {
+//            badge.setNumber(itemCount);
+//            badge.setVisible(true);
+//        } else {
+//            badge.setVisible(false);
+//        }
+
+    }
+
+    private void updateUI() {
+        if (binding == null) return;
+        binding.progressBar.setVisibility(View.GONE);
+        binding.btnAddToCart.setEnabled(true);
     }
 
     private void showLoading() {
@@ -328,18 +483,6 @@ public class ProductDetailFragment extends Fragment {
         if (getContext() != null && !isDestroyed) {
             Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private void showLoginRequiredDialog() {
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Login Required")
-                .setMessage("You need to login to add items to cart")
-                .setPositiveButton("Login", (dialog, which) -> {
-                    Intent intent = new Intent(requireContext(), UserIdentifyActivity.class);
-                    startActivity(intent);
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
     }
 
     @Override
